@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-namespace PgExtension;
+namespace PgExtension.Query;
 
     internal static class ConstructorCache<T>
     {

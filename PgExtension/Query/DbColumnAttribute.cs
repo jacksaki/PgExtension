@@ -1,4 +1,4 @@
-﻿namespace PgExtension;
+﻿namespace PgExtension.Query;
 
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 public class DbColumnAttribute: Attribute
@@ -7,7 +7,7 @@ public class DbColumnAttribute: Attribute
     public string? DateFormat { get; }
     public DbColumnAttribute(string columnName, string? dateFormat = null)
     {
-        this.ColumnName = columnName;
-        this.DateFormat = dateFormat;
+        ColumnName = columnName;
+        DateFormat = dateFormat;
     }
 }

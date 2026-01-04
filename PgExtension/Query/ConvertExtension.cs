@@ -1,10 +1,10 @@
-﻿namespace PgExtension;
+﻿namespace PgExtension.Query;
 
 internal static class ConvertExtension
 {
     public static int ToInt32(this object? value)
     {
-        return value.ToInt32(default(int));
+        return value.ToInt32(default);
     }
 
     public static int ToInt32(this object? value, int defaultValue)
@@ -98,7 +98,7 @@ internal static class ConvertExtension
 
     public static DateTime ToDateTime(this object? value, string? dateFormat)
     {
-        return value.ToDateTime(dateFormat,default(DateTime));
+        return value.ToDateTime(dateFormat,default);
     }
 
     public static DateTime ToDateTime(this object? value, string? dateFormat,DateTime defaultValue)

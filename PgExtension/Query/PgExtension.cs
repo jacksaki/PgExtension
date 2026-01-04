@@ -1,6 +1,6 @@
 ﻿using Npgsql;
 
-namespace PgExtension;
+namespace PgExtension.Query;
 
 public static class PgExtension
 {
@@ -45,6 +45,7 @@ public static class PgExtension
         PostProcessCache<T>.Invoke?.Invoke(obj);
         return obj;
     }
+
     public static T Create<T, T0, T1, T2, T3, T4>(this NpgsqlDataReader row, T0 param0, T1 param1, T2 param2, T3 param3, T4 param4)
     {
         var obj = ConstructorCache<T, T0, T1, T2, T3, T4>.CreateInstance(param0, param1, param2, param3, param4);

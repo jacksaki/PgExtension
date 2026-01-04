@@ -1,4 +1,4 @@
-﻿namespace PgExtension;
+﻿namespace PgExtension.Query;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 public sealed class DbClassAttribute : Attribute

@@ -21,6 +21,12 @@ namespace PgExtension.Tests
             {
                 var json = record;
             }
+            using (var q = new PgQuery(GetConnection()))
+            {
+                var rows = q.Select<TestClass>(sql);
+                var rows2=q.Select<TestClass>(sql);
+                q.TransactionComplete();
+            }
         }
         [Fact]
         public async Task SelectAsyncTestAsync()

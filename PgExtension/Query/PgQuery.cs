@@ -1,4 +1,5 @@
 ﻿using Npgsql;
+using PgExtension.Query;
 using System.Data;
 using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
@@ -7,6 +8,7 @@ namespace PgExtension;
 public partial class PgQuery : IDisposable
 {
     readonly NpgsqlConnection connection;
+    public static string? DefaultConnectionString { get; set; }
     // Transaction
     readonly bool isUseTransaction;
     readonly IsolationLevel isolationLevel;
@@ -20,7 +22,11 @@ public partial class PgQuery : IDisposable
         this.connection = connection;
         this.isUseTransaction = false;
     }
-
+    public PgQuery(string connectionString)
+    {
+        this.connection = new NpgsqlConnection(connectionString);
+        this.isUseTransaction = false;
+    }
     /// <summary>Use transaction.</summary>
     /// <param name="connection">Database connection.</param>
     /// <param name="isolationLevel">Transaction IsolationLevel.</param>
@@ -69,6 +75,7 @@ public partial class PgQuery : IDisposable
         return command;
     }
 
+    #region Select
     public IEnumerable<T> Select<T>(string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
         var records = YieldReaderHelper(query, parameter, commandType, commandBehavior);
@@ -78,6 +85,73 @@ public partial class PgQuery : IDisposable
         }
     }
 
+    public IEnumerable<T> Select<T, T0>(T0 t0, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        var records = YieldReaderHelper(query, parameter, commandType, commandBehavior);
+        foreach (var record in records)
+        {
+            yield return record.Create<T, T0>(t0);
+        }
+    }
+    public IEnumerable<T> Select<T, T0, T1>(T0 t0, T1 t1, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        var records = YieldReaderHelper(query, parameter, commandType, commandBehavior);
+        foreach (var record in records)
+        {
+            yield return record.Create<T, T0, T1>(t0, t1);
+        }
+    }
+    public IEnumerable<T> Select<T, T0, T1, T2>(T0 t0, T1 t1, T2 t2, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        var records = YieldReaderHelper(query, parameter, commandType, commandBehavior);
+        foreach (var record in records)
+        {
+            yield return record.Create<T, T0, T1, T2>(t0, t1, t2);
+        }
+    }
+    public IEnumerable<T> Select<T, T0, T1, T2, T3>(T0 t0, T1 t1, T2 t2, T3 t3, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        var records = YieldReaderHelper(query, parameter, commandType, commandBehavior);
+        foreach (var record in records)
+        {
+            yield return record.Create<T, T0, T1, T2, T3>(t0, t1, t2, t3);
+        }
+    }
+    public IEnumerable<T> Select<T, T0, T1, T2, T3, T4>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        var records = YieldReaderHelper(query, parameter, commandType, commandBehavior);
+        foreach (var record in records)
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4>(t0, t1, t2, t3, t4);
+        }
+    }
+    public IEnumerable<T> Select<T, T0, T1, T2, T3, T4, T5>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        var records = YieldReaderHelper(query, parameter, commandType, commandBehavior);
+        foreach (var record in records)
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4, T5>(t0, t1, t2, t3, t4, t5);
+        }
+    }
+    public IEnumerable<T> Select<T, T0, T1, T2, T3, T4, T5, T6>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        var records = YieldReaderHelper(query, parameter, commandType, commandBehavior);
+        foreach (var record in records)
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4, T5, T6>(t0, t1, t2, t3, t4, t5, t6);
+        }
+    }
+    public IEnumerable<T> Select<T, T0, T1, T2, T3, T4, T5, T6, T7>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        var records = YieldReaderHelper(query, parameter, commandType, commandBehavior);
+        foreach (var record in records)
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4, T5, T6, T7>(t0, t1, t2, t3, t4, t5, t6, t7);
+        }
+    }
+    #endregion
+
+    #region SelectAsync
     public async IAsyncEnumerable<T> SelectAsync<T>(string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
         await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
@@ -85,6 +159,71 @@ public partial class PgQuery : IDisposable
             yield return record.Create<T>();
         }
     }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0>(T0 t0, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        {
+            yield return record.Create<T, T0>(t0);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1>(T0 t0, T1 t1, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        {
+            yield return record.Create<T, T0, T1>(t0, t1);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2>(T0 t0, T1 t1, T2 t2, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        {
+            yield return record.Create<T, T0, T1, T2>(t0, t1, t2);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3>(T0 t0, T1 t1, T2 t2, T3 t3, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        {
+            yield return record.Create<T, T0, T1, T2, T3>(t0, t1, t2, t3);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4>(t0, t1, t2, t3, t4);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4, T5>(t0, t1, t2, t3, t4, t5);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5, T6>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4, T5, T6>(t0, t1, t2, t3, t4, t5, t6);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5, T6, T7>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4, T5, T6, T7>(t0, t1, t2, t3, t4, t5, t6, t7);
+        }
+    }
+    #endregion
 
     IEnumerable<NpgsqlDataReader> YieldReaderHelper(string query, IDictionary<string,object?>? parameter, CommandType commandType, CommandBehavior commandBehavior)
     {
