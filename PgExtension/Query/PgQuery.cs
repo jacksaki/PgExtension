@@ -152,73 +152,67 @@ public partial class PgQuery : IDisposable
     #endregion
 
     #region SelectAsync
-    public async IAsyncEnumerable<T> SelectAsync<T>(string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    public async IAsyncEnumerable<T> SelectAsync<T>(string query, IDictionary<string, object?>? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
-        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
         {
             yield return record.Create<T>();
         }
     }
-    public async IAsyncEnumerable<T> SelectAsync<T, T0>(T0 t0, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
-    {
 
-        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+    public async IAsyncEnumerable<T> SelectAsync<T, T0>(T0 t0, string query, IDictionary<string, object?>? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
         {
             yield return record.Create<T, T0>(t0);
         }
     }
-    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1>(T0 t0, T1 t1, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
-    {
 
-        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1>(T0 t0, T1 t1, string query, IDictionary<string, object?>? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
         {
             yield return record.Create<T, T0, T1>(t0, t1);
         }
     }
-    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2>(T0 t0, T1 t1, T2 t2, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2>(T0 t0, T1 t1, T2 t2, string query, IDictionary<string, object?>? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
-
-        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
         {
             yield return record.Create<T, T0, T1, T2>(t0, t1, t2);
         }
     }
-    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3>(T0 t0, T1 t1, T2 t2, T3 t3, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3>(T0 t0, T1 t1, T2 t2, T3 t3, string query, IDictionary<string, object?>? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
-
-        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
         {
             yield return record.Create<T, T0, T1, T2, T3>(t0, t1, t2, t3);
         }
     }
-    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, string query, IDictionary<string, object?>? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
-
-        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
         {
             yield return record.Create<T, T0, T1, T2, T3, T4>(t0, t1, t2, t3, t4);
         }
     }
-    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, string query, IDictionary<string, object?>? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
-
-        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
         {
             yield return record.Create<T, T0, T1, T2, T3, T4, T5>(t0, t1, t2, t3, t4, t5);
         }
     }
-    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5, T6>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5, T6>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, string query, IDictionary<string, object?>? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
-
-        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
         {
             yield return record.Create<T, T0, T1, T2, T3, T4, T5, T6>(t0, t1, t2, t3, t4, t5, t6);
         }
     }
-    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5, T6, T7>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5, T6, T7>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, string query, IDictionary<string, object?>? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
-
-        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior))
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
         {
             yield return record.Create<T, T0, T1, T2, T3, T4, T5, T6, T7>(t0, t1, t2, t3, t4, t5, t6, t7);
         }
@@ -309,13 +303,13 @@ public partial class PgQuery : IDisposable
     /// <param name="parameter">PropertyName parameterized to PropertyName. if null then no use parameter.</param>
     /// <param name="commandType">Command Type.</param>
     /// <returns>Rows affected.</returns>
-    public async Task<int> ExecuteNonQueryAsync(string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text)
+    public async Task<int> ExecuteNonQueryAsync(string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CancellationToken ct = default)
     {
         Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(query));
 
         using (var command = PrepareExecute(query, commandType, parameter))
         {
-            return await command.ExecuteNonQueryAsync();
+            return await command.ExecuteNonQueryAsync(ct);
         }
     }
 
@@ -341,13 +335,13 @@ public partial class PgQuery : IDisposable
     /// <param name="parameter">PropertyName parameterized to PropertyName. if null then no use parameter.</param>
     /// <param name="commandType">Command Type.</param>
     /// <returns>Query results of first column, first row.</returns>
-    public async Task<T?> ExecuteScalarAsync<T>(string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text)
+    public async Task<T?> ExecuteScalarAsync<T>(string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text,CancellationToken ct = default)
     {
         Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(query));
 
         using (var command = PrepareExecute(query, commandType, parameter))
         {
-            return (T?)await command.ExecuteScalarAsync() ?? default(T);
+            return (T?)await command.ExecuteScalarAsync(ct) ?? default(T);
         }
     }
 

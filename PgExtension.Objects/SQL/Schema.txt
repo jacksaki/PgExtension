@@ -1,0 +1,6 @@
+﻿SELECT
+ n.nspname AS schema_name
+,u.rolname AS schema_owner
+FROM
+ pg_namespace n
+INNER JOIN pg_authid u ON(n.nspowner = u.oid)

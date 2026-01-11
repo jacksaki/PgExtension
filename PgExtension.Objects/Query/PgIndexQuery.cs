@@ -1,0 +1,49 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PgExtension.Objects.Query;
+
+internal class PgIndexQuery
+{
+    private static readonly string SQL = @"SELECT
+ i.oid AS index_oid
+,t.oid AS table_oid
+,nt.nspname AS table_schema
+,t.relname AS table_name
+,ni.nspname AS index_schema
+,i.relname AS index_name
+,ix.indisprimary AS is_primary_key
+,ix.indisunique  AS is_unique
+,json_agg(
+    json_build_object(
+         'column_name',regexp_replace(pg_get_indexdef(i.oid, k + 1, true), '\s+(ASC|DESC)\s*$', '', 'i')
+        ,'order', COALESCE((regexp_match(pg_get_indexdef(i.oid, k + 1, true), '\s+(ASC|DESC)\s*$', 'i'))[1], 'ASC')
+    )
+    ORDER BY k
+) AS columns
+FROM
+ pg_class i
+INNER JOIN pg_index ix ON (ix.indexrelid = i.oid)
+INNER JOIN pg_class t ON (t.oid = ix.indrelid)
+INNER JOIN pg_namespace nt ON (nt.oid = t.relnamespace)
+INNER JOIN pg_namespace ni ON (ni.oid = t.relnamespace)
+INNER JOIN generate_subscripts(ix.indkey, 1) AS k ON true
+WHERE
+i.relkind = 'i'
+GROUP BY
+ i.oid
+,t.oid
+,nt.nspname
+,ni.nspname
+,ix.indisprimary
+,ix.indisunique
+,i.relname
+ORDER BY
+ nt.nspname
+,ni.nspname
+,t.relname
+,i.relname";
+}

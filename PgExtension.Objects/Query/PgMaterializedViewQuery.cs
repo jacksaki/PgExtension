@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PgExtension.Objects.Query;
+
+internal class PgMaterializedViewQuery
+{
+    private static readonly string SQL = @"SELECT
+ c.oid
+,n.nspname AS schema_name
+,c.relname AS view_name
+,pg_get_viewdef(c.oid, true) AS view_definition
+FROM
+ pg_catalog.pg_class c
+INNER JOIN pg_catalog.pg_namespace n ON (n.oid = c.relnamespace)
+WHERE
+c.relkind = 'm'
+ORDER BY
+ n.nspname
+,c.relname";
+}

@@ -1,0 +1,45 @@
+﻿using PgExtension.Query;
+
+namespace PgExtension.Objects;
+
+public class PgColumn 
+{
+    [DbColumn("table_oid")]
+    internal int TableOid { get; private set; }
+
+    [DbColumn("table_schema")]
+    public string TableSchema { get; private set; } = string.Empty;
+
+    [DbColumn("table_name")]
+    public string TableName { get; private set; } = string.Empty;
+
+    [DbColumn("column_name")]
+    public string ColumnName { get; private set; } = string.Empty;
+
+    [DbColumn("ordinal_position")]
+    public int OrdinalPosition { get; private set; }
+
+    [DbColumn("column_default")]
+    public string ColumnDefault { get; private set; } = string.Empty;
+
+    [DbColumn("is_not_null")]
+    public bool IsNotNull { get; private set; }
+
+    [DbColumn("data_type")]
+    public string DataType { get; private set; } = string.Empty;
+
+    [DbColumn("character_maximum_length")]
+    public int? CharacterMaximumLength { get; private set; }
+
+    [DbColumn("numeric_precision")]
+    public int? NumericPrecision { get; private set; }
+
+    [DbColumn("numeric_scale")]
+    public int? NumericScale { get; private set; }
+
+    [DbColumn("datetime_precision")]
+    public int? DateTimePrecision { get; private set; }
+
+    [DbColumn("is_updatable")]
+    public bool IsUpdatable { get; private set; }
+}
