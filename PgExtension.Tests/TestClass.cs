@@ -9,7 +9,7 @@ public class TestClass
 {
     private void RefreshItems()
     {
-        if(string.IsNullOrEmpty(_items))
+        if (string.IsNullOrEmpty(_items))
         {
             this.Items = null;
         }

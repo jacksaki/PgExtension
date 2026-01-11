@@ -2,7 +2,7 @@
 
 namespace PgExtension.Objects;
 
-public class PgColumn 
+public class PgColumn
 {
     [DbColumn("table_oid")]
     internal int TableOid { get; private set; }

@@ -1,12 +1,4 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Microsoft.Diagnostics.Tracing.StackSources;
-using Npgsql;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PgExtension;
 using DatabaseExtension;
 
 namespace PgExtensionBenchmark;
@@ -23,7 +15,7 @@ public class BigTableBenchmarkOld
         var sql = "SELECT name,age,score,created_at,id,payload,note FROM big_table";
         using (var q = new DatabaseExtension.PgQuery())
         {
-            foreach (var row in q.GetSqlResult(sql,null).Rows.Select(x=>x.Create<BigTable2>()))
+            foreach (var row in q.GetSqlResult(sql, null).Rows.Select(x => x.Create<BigTable2>()))
             {
                 //  Console.WriteLine(row.Id);
             }

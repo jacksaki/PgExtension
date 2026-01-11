@@ -42,7 +42,7 @@ public partial class PgQuery : IDisposable
     /// <param name="commandType">Command Type.</param>
     /// <param name="parameter">PropertyName parameterized to PropertyName. if null then no use parameter.</param>
     /// <returns>Setuped IDbCommand.</returns>
-    protected NpgsqlCommand PrepareExecute(string query, CommandType commandType, IDictionary<string,object?>? parameter)
+    protected NpgsqlCommand PrepareExecute(string query, CommandType commandType, IDictionary<string, object?>? parameter)
     {
         Contract.Ensures(Contract.Result<NpgsqlCommand>() != null);
 
@@ -219,7 +219,7 @@ public partial class PgQuery : IDisposable
     }
     #endregion
 
-    IEnumerable<NpgsqlDataReader> YieldReaderHelper(string query, IDictionary<string,object?>? parameter, CommandType commandType, CommandBehavior commandBehavior)
+    IEnumerable<NpgsqlDataReader> YieldReaderHelper(string query, IDictionary<string, object?>? parameter, CommandType commandType, CommandBehavior commandBehavior)
     {
         using (var command = PrepareExecute(query, commandType, parameter))
         using (var reader = command.ExecuteReader(commandBehavior))
@@ -250,9 +250,9 @@ public partial class PgQuery : IDisposable
     /// <param name="commandBehavior">Command Behavior.</param>
     /// <returns>Query results.</returns>
     public IEnumerable<NpgsqlDataReader> ExecuteReader(
-        string query, 
-        IDictionary<string,object?>? parameter = null, 
-        CommandType commandType = CommandType.Text, 
+        string query,
+        IDictionary<string, object?>? parameter = null,
+        CommandType commandType = CommandType.Text,
         CommandBehavior commandBehavior = CommandBehavior.Default)
     {
         Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(query));
@@ -277,7 +277,7 @@ public partial class PgQuery : IDisposable
         Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(query));
         Contract.Ensures(Contract.Result<IEnumerable<NpgsqlDataReader>>() != null);
 
-        await foreach(var r in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
+        await foreach (var r in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
         {
             yield return r;
         }
@@ -319,7 +319,7 @@ public partial class PgQuery : IDisposable
     /// <param name="parameter">PropertyName parameterized to PropertyName. if null then no use parameter.</param>
     /// <param name="commandType">Command Type.</param>
     /// <returns>Query results of first column, first row.</returns>
-    public T? ExecuteScalar<T>(string query, IDictionary<string,object?>? parameter = null, CommandType commandType = CommandType.Text)
+    public T? ExecuteScalar<T>(string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text)
     {
         Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(query));
 
@@ -335,7 +335,7 @@ public partial class PgQuery : IDisposable
     /// <param name="parameter">PropertyName parameterized to PropertyName. if null then no use parameter.</param>
     /// <param name="commandType">Command Type.</param>
     /// <returns>Query results of first column, first row.</returns>
-    public async Task<T?> ExecuteScalarAsync<T>(string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text,CancellationToken ct = default)
+    public async Task<T?> ExecuteScalarAsync<T>(string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CancellationToken ct = default)
     {
         Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(query));
 

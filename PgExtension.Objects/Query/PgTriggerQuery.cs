@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
@@ -34,5 +30,39 @@ AND NOT pg_is_other_temp_schema(n.oid)
 --	pg_has_role(c.relowner, 'USAGE')
 --	OR has_table_privilege(c.oid, 'INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER')
 --	OR has_any_column_privilege(c.oid, 'INSERT, UPDATE, REFERENCES')
---)";
+--)
+AND (@table_oid IS NULL OR c.oid = @table_oid)
+AND (@schema_name IS NULL OR n.nspname = @schema_name)
+AND (@trigger_name IS NULL OR t.tgname ILIKE @trigger_name)
+ORDER BY
+ n.nspname
+,t.tgname";
+    internal static async IAsyncEnumerable<PgTrigger> ListAsync(PgCatalog catalog, int tableOid, [EnumeratorCancellation] CancellationToken ct = default)
+    {
+        var p = new Dictionary<string, object?>()
+        {
+            { "table_oid", tableOid },
+            { "schema_name", null },
+            { "trigger_name", null },
+        };
+        using var q = catalog.CreateQuery();
+        await foreach (var trigger in q.SelectAsync<PgTrigger, PgCatalog>(catalog, SQL, p, ct))
+        {
+            yield return trigger;
+        }
+    }
+    internal static async IAsyncEnumerable<PgTrigger> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
+    {
+        var p = new Dictionary<string, object?>()
+        {
+            { "table_oid", null },
+            { "schema_name", schemaName },
+            { "trigger_name", nameLike.Like() },
+        };
+        using var q = catalog.CreateQuery();
+        await foreach (var trigger in q.SelectAsync<PgTrigger, PgCatalog>(catalog, SQL, p, ct))
+        {
+            yield return trigger;
+        }
+    }
 }

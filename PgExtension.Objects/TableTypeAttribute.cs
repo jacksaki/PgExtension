@@ -1,7 +1,7 @@
 ﻿namespace PgExtension.Objects;
 
 [AttributeUsage(AttributeTargets.Field)]
-internal class TableTypeAttribute:Attribute
+internal class TableTypeAttribute : Attribute
 {
     public string Name { get; }
     public string RelKind { get; }

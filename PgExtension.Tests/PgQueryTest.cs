@@ -8,7 +8,8 @@ namespace PgExtension.Tests
         {
             return System.Environment.GetEnvironmentVariable("connection_string")!;
         }
-        private static NpgsqlConnection GetConnection() {
+        private static NpgsqlConnection GetConnection()
+        {
             return new NpgsqlConnection(GetConnectionString());
         }
 
@@ -24,7 +25,7 @@ namespace PgExtension.Tests
             using (var q = new PgQuery(GetConnection()))
             {
                 var rows = q.Select<TestClass>(sql);
-                var rows2=q.Select<TestClass>(sql);
+                var rows2 = q.Select<TestClass>(sql);
                 q.TransactionComplete();
             }
         }

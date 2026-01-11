@@ -1,5 +1,5 @@
 ﻿namespace PgExtension.Objects;
 
-public class PgMaterializedView
+public class PgForeginTable
 {
 }

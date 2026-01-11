@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
@@ -33,7 +29,39 @@ LEFT OUTER JOIN pg_namespace tbl_ns ON (tbl_ns.oid = tbl.relnamespace)
 LEFT OUTER JOIN pg_attribute col ON (col.attrelid = tbl.oid AND col.attnum = dep.refobjsubid)
 WHERE
 seq.relkind = 'S'
+AND (@table_oid IS NULL OR tbl.oid = @table_oid)
+AND (@schema_name IS NULL OR ns.nspname = @schema_name)
+AND (@sequence_name IS NULL OR seq.relname ILIKE @sequence_name)
 ORDER BY
  sequence_schema
 ,sequence_name";
+
+    internal static async IAsyncEnumerable<PgSequence> ListAsync(PgCatalog catalog, int tableOid, [EnumeratorCancellation] CancellationToken ct = default)
+    {
+        var p = new Dictionary<string, object?>()
+        {
+            { "table_oid", tableOid },
+            { "schema_name", null },
+            { "sequence_name", null },
+        };
+        using var q = catalog.CreateQuery();
+        await foreach (var seq in q.SelectAsync<PgSequence, PgCatalog>(catalog, SQL, p, ct))
+        {
+            yield return seq;
+        }
+    }
+    internal static async IAsyncEnumerable<PgSequence> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
+    {
+        var p = new Dictionary<string, object?>()
+        {
+            { "table_oid", null },
+            { "schema_name", schemaName },
+            { "sequence_name", nameLike.Like() }
+        };
+        using var q = catalog.CreateQuery();
+        await foreach (var seq in q.SelectAsync<PgSequence, PgCatalog>(catalog, SQL, p, ct))
+        {
+            yield return seq;
+        }
+    }
 }

@@ -1,11 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Microsoft.Diagnostics.Tracing.StackSources;
 using Npgsql;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PgExtension;
 
 namespace PgExtensionBenchmark;
@@ -42,7 +36,7 @@ public class BigTableBenchmark
     {
         var conn = new NpgsqlConnection(System.Environment.GetEnvironmentVariable("connection_string")!);
         var sql = "SELECT name,age,score,created_at,id,payload,note FROM big_table";
-        using(var q = new PgQuery(conn))
+        using (var q = new PgQuery(conn))
         {
             foreach (var row in q.Select<BigTable>(sql))
             {
@@ -57,7 +51,7 @@ public class BigTableBenchmark
         var sql = "SELECT name,age,score,created_at,id,payload,note FROM big_table";
         using (var q = new PgQuery(conn))
         {
-            await foreach (var row in q.SelectAsync<BigTable>(sql))
+            await foreach (var row in q.SelectAsync<BigTable>(sql, null))
             {
                 //  Console.WriteLine(row.Id);
             }
@@ -106,7 +100,7 @@ public class BigTableBenchmark
         var sql = "SELECT name,age,score,created_at,id,payload,note FROM big_table";
         using (var q = new PgQuery(conn))
         {
-            await foreach (var row in q.SelectAsync<BigTable3>(sql))
+            await foreach (var row in q.SelectAsync<BigTable3>(sql, null))
             {
                 //  Console.WriteLine(row.Id);
             }
@@ -154,7 +148,7 @@ public class BigTableBenchmark
         var sql = "SELECT name,age,score,created_at,id,payload,note FROM big_table";
         using (var q = new PgQuery(conn))
         {
-            await foreach (var row in q.SelectAsync<BigTable4>(sql))
+            await foreach (var row in q.SelectAsync<BigTable4>(sql, null))
             {
                 //  Console.WriteLine(row.Id);
             }

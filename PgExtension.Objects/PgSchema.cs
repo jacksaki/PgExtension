@@ -17,8 +17,8 @@ public sealed class PgSchema
     [DbColumn("schema_owner")]
     public string Owner { get; private set; } = string.Empty;
 
-    public IAsyncEnumerable<PgTable> ListTablesAsync(string nameLike, TableTypes t, CancellationToken ct = default)
+    public IAsyncEnumerable<PgTable> ListTablesAsync(string? nameLike, CancellationToken ct = default)
     {
-        return _catalog.ListTablesAsync(this.Name, nameLike, t, ct);
+        return _catalog.ListTablesAsync(this.Name, nameLike, ct);
     }
 }

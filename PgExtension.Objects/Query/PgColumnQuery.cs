@@ -1,9 +1,4 @@
-﻿using Npgsql;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
@@ -71,15 +66,16 @@ AND c.relkind IN ('r', 'v', 'f', 'p', 't', 'm')
 AND c.oid = @table_oid
 ORDER BY
  a.attnum";
-    internal async IAsyncEnumerable<PgColumn> ListColumnsAsync(PgQuery q, PgTable parent)
+    internal static async IAsyncEnumerable<PgColumn> ListColumnsAsync(PgCatalog catalog, int tableOid, [EnumeratorCancellation] CancellationToken ct = default)
     {
         var p = new Dictionary<string, object?>()
         {
             {
-               "table_oid",parent.Oid
+               "table_oid", tableOid
             }
         };
-        await foreach(var result in q.SelectAsync<PgColumn>(SQL, p))
+        using var q = catalog.CreateQuery();
+        await foreach (var result in q.SelectAsync<PgColumn>(SQL, p, ct))
         {
             yield return result;
         }

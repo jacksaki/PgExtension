@@ -98,29 +98,29 @@ internal static class ConvertExtension
 
     public static DateTime ToDateTime(this object? value, string? dateFormat)
     {
-        return value.ToDateTime(dateFormat,default);
+        return value.ToDateTime(dateFormat, default);
     }
 
-    public static DateTime ToDateTime(this object? value, string? dateFormat,DateTime defaultValue)
+    public static DateTime ToDateTime(this object? value, string? dateFormat, DateTime defaultValue)
     {
         return value.ToDateTimeN(dateFormat) ?? defaultValue;
     }
 
-    public static DateTime? ToDateTimeN(this object? value,string? dateFormat)
+    public static DateTime? ToDateTimeN(this object? value, string? dateFormat)
     {
         if (value == null || value == DBNull.Value)
         {
             return null;
         }
 
-        if(value is DateTime d)
+        if (value is DateTime d)
         {
             return d;
         }
 
         if (dateFormat == null)
         {
-            return DateTime.TryParse(value.ToString(),out var ret)? ret : null;
+            return DateTime.TryParse(value.ToString(), out var ret) ? ret : null;
         }
         else
         {

@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace PgExtension.Objects;
 
-namespace PgExtension.Objects;
-
-public class PgView : PgRelationBase
+public class PgView
 {
 }

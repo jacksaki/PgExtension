@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
 internal class PgProcedureQuery
 {
     private static readonly string SQL = @"SELECT
- n.nspname AS specific_schema
-,nameconcatoid(p.proname, p.oid) AS specific_name
-,n.nspname AS routine_schema
+ n.nspname AS routine_schema
 ,p.proname AS routine_name
-,CASE p.prokind WHEN 'f' THEN 'FUNCTION' WHEN 'p' THEN 'PROCEDURE' ELSE NULL END AS routine_type
 ,COALESCE(type_map.dst, dt.raw_data_type) AS data_type
 ,CASE WHEN l.lanname = 'sql' THEN 'SQL' ELSE 'EXTERNAL' END AS routine_body,
 CASE WHEN pg_has_role(p.proowner, 'USAGE') THEN p.prosrc ELSE NULL END AS routine_definition
@@ -44,5 +37,26 @@ LEFT OUTER JOIN (
 --    ,('time without time zone', 'time')
 --    ,('time with time zone', 'timetz')
 ) AS type_map(src, dst)
-ON (type_map.src = dt.raw_data_type)";
+ON (type_map.src = dt.raw_data_type)
+WHERE
+n.nspname = @schema_name
+AND p.prokind = 'p'
+AND (@proc_name IS NULL OR p.proname ILIKE @proc_name)
+ORDER BY
+ n.nspname
+,p.proname";
+
+    internal static async IAsyncEnumerable<PgProcedure> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
+    {
+        var p = new Dictionary<string, object?>()
+        {
+            { "schema_name", schemaName },
+            { "proc_name", nameLike.Like() },
+        };
+        using var q = catalog.CreateQuery();
+        await foreach (var f in q.SelectAsync<PgProcedure, PgCatalog>(catalog, SQL, p, ct))
+        {
+            yield return f;
+        }
+    }
 }

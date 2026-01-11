@@ -3,7 +3,7 @@
 [Flags]
 public enum TableTypes
 {
-    [TableType("BASE TABLE","r")]
+    [TableType("BASE TABLE", "r")]
     BaseTable = 1,
     [TableType("VIEW", "r")]
     View = 2,
