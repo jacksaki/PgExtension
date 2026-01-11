@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PgExtension.Objects.Query;
+﻿namespace PgExtension.Objects.Query;
 
 internal static class QueryExtension
 {
@@ -15,5 +9,5 @@ internal static class QueryExtension
             return null;
         }
         return $"%{s}%";
-}
+    }
 }

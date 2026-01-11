@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using PgExtension.Objects.Query;
+﻿using PgExtension.Objects.Query;
 using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects;

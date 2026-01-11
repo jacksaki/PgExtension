@@ -66,7 +66,7 @@ ORDER BY
             yield return con;
         }
     }
-    internal static async IAsyncEnumerable<PgConstraint> ListAsync(PgCatalog catalog, string schemaName,string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
+    internal static async IAsyncEnumerable<PgConstraint> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
     {
         var p = new Dictionary<string, object?>()
         {
