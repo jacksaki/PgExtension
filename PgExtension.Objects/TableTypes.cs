@@ -13,6 +13,6 @@ public enum TableTypes
     MaterializedView = 8,
     [TableType("TOAST TABLE", "t")]
     ToastTable = 16,
-    [TableType("FOREGIN TABLE", "f")]
+    [TableType("FOREIGN TABLE", "f")]
     ForeignTable = 32,
 }

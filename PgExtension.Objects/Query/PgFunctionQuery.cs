@@ -8,8 +8,8 @@ internal class PgFunctionQuery
  n.nspname AS routine_schema
 ,p.proname AS routine_name
 ,COALESCE(type_map.dst, dt.raw_data_type) AS data_type
-,CASE WHEN l.lanname = 'sql' THEN 'SQL' ELSE 'EXTERNAL' END AS routine_body,
-CASE WHEN pg_has_role(p.proowner, 'USAGE') THEN p.prosrc ELSE NULL END AS routine_definition
+,CASE WHEN l.lanname = 'sql' THEN 'SQL' ELSE 'EXTERNAL' END AS routine_body
+,CASE WHEN pg_has_role(p.proowner, 'USAGE') THEN p.prosrc ELSE NULL END AS routine_definition
 ,CASE WHEN l.lanname = 'c' THEN p.prosrc ELSE NULL END AS external_name
 ,upper(l.lanname) AS external_language
 ,p.provolatile = 'i' AS is_deterministic
