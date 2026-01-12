@@ -1,9 +1,17 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Npgsql;
+using PgExtension.Query;
+using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
 internal class PgTableQuery
 {
+    internal static SQLSet GenerateSQLSet()
+        => new SQLSet(SQL, new NpgsqlParameter[]
+        {
+            new NpgsqlParameter("table_schema", NpgsqlTypes.NpgsqlDbType.Text),
+            new NpgsqlParameter("table_name", NpgsqlTypes.NpgsqlDbType.Text),
+        });
     private static readonly string SQL = @"SELECT
  c.oid
 ,nc.nspname::information_schema.sql_identifier AS table_schema
@@ -17,16 +25,15 @@ WHERE
 c.relkind = 'r'
 --AND NOT pg_is_other_temp_schema(nc.oid)
 AND nc.nspname = @table_schema
-AND (@table_name IS NULL OR c.relname ILIKE @table_name)";
+AND (@table_name IS NULL OR c.relname ILIKE @table_name::text)";
     internal static async IAsyncEnumerable<PgTable> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            { "table_schema", schemaName },
-            { "table_name", nameLike.Like() },
-        };
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_schema"]!.Value = schemaName;
+        sqlSet["table_name"]!.Value = nameLike.Like(DBNull.Value);
+
         using var q = catalog.CreateQuery();
-        await foreach (var table in q.SelectAsync<PgTable, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var table in q.SelectAsync<PgTable, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return table;
         }

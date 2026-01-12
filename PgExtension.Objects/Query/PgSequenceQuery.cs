@@ -1,9 +1,19 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Npgsql;
+using PgExtension.Query;
+using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
 internal class PgSequenceQuery
 {
+    internal static SQLSet GenerateSQLSet()
+        => new SQLSet(SQL, new NpgsqlParameter[]
+        {
+            new NpgsqlParameter("table_oid", NpgsqlTypes.NpgsqlDbType.Oid),
+            new NpgsqlParameter("schema_name", NpgsqlTypes.NpgsqlDbType.Text),
+            new NpgsqlParameter("sequence_name", NpgsqlTypes.NpgsqlDbType.Text),
+        });
+
     private static readonly string SQL = @"SELECT
  tbl.oid AS table_oid
 ,ns.nspname AS sequence_schema
@@ -30,36 +40,34 @@ LEFT OUTER JOIN pg_attribute col ON (col.attrelid = tbl.oid AND col.attnum = dep
 WHERE
 seq.relkind = 'S'
 AND (@table_oid IS NULL OR tbl.oid = @table_oid)
-AND (@schema_name IS NULL OR ns.nspname = @schema_name)
-AND (@sequence_name IS NULL OR seq.relname ILIKE @sequence_name)
+AND (@schema_name IS NULL OR ns.nspname = @schema_name::text)
+AND (@sequence_name IS NULL OR seq.relname ILIKE @sequence_name::text)
 ORDER BY
  sequence_schema
 ,sequence_name";
 
-    internal static async IAsyncEnumerable<PgSequence> ListAsync(PgCatalog catalog, int tableOid, [EnumeratorCancellation] CancellationToken ct = default)
+    internal static async IAsyncEnumerable<PgSequence> ListAsync(PgCatalog catalog, uint tableOid, [EnumeratorCancellation] CancellationToken ct = default)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            { "table_oid", tableOid },
-            { "schema_name", null },
-            { "sequence_name", null },
-        };
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_oid"]!.Value = tableOid;
+        sqlSet["schema_name"]!.Value = DBNull.Value;
+        sqlSet["sequence_name"]!.Value = DBNull.Value;
+
         using var q = catalog.CreateQuery();
-        await foreach (var seq in q.SelectAsync<PgSequence, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var seq in q.SelectAsync<PgSequence, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return seq;
         }
     }
     internal static async IAsyncEnumerable<PgSequence> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            { "table_oid", null },
-            { "schema_name", schemaName },
-            { "sequence_name", nameLike.Like() }
-        };
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_oid"]!.Value = DBNull.Value;
+        sqlSet["schema_name"]!.Value = schemaName;
+        sqlSet["sequence_name"]!.Value = nameLike.Like(DBNull.Value);
+
         using var q = catalog.CreateQuery();
-        await foreach (var seq in q.SelectAsync<PgSequence, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var seq in q.SelectAsync<PgSequence, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return seq;
         }

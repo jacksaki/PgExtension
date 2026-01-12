@@ -6,7 +6,7 @@ public class PgPartitionTableChild
 {
     [JsonPropertyName("oid")]
     [JsonInclude]
-    public int Oid { get; private set; }
+    public uint Oid { get; private set; }
 
     [JsonPropertyName("child_table_name")]
     [JsonInclude]

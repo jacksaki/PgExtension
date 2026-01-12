@@ -11,6 +11,10 @@ public partial class PgQuery : IDisposable
     {
         return PgQuery.ExecuteReader(new NpgsqlConnection(connectionString), query, parameter, commandType, commandBehavior);
     }
+    public static IEnumerable<NpgsqlDataReader> ExecuteReader(string connectionString, SQLSet sqlSet, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        return PgQuery.ExecuteReader(new NpgsqlConnection(connectionString), sqlSet, commandType, commandBehavior);
+    }
 
     /// <summary>Executes and returns the data records, when done dispose connection.<para>When done dispose connection.</para></summary>
     /// <param name="connection">Database connection.</param>
@@ -26,6 +30,10 @@ public partial class PgQuery : IDisposable
         Contract.Ensures(Contract.Result<IEnumerable<NpgsqlDataReader>>() != null);
 
         return ExecuteReaderHelper(connection, query, parameter, commandType, commandBehavior);
+    }
+    public static IEnumerable<NpgsqlDataReader> ExecuteReader(NpgsqlConnection connection, SQLSet sqlSet, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        return ExecuteReaderHelper(connection, sqlSet, commandType, commandBehavior);
     }
 
     public static int ExecuteNonQuery(string connectionString, string query,

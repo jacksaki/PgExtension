@@ -1,11 +1,19 @@
-﻿using PgExtension.Query;
+﻿using PgExtension.Objects.Query;
+using PgExtension.Query;
 
 namespace PgExtension.Objects;
 
 public class PgColumn
 {
+    public static SQLSet GetSQLSet() => PgColumnQuery.GenerateSQLSet();
+    internal PgColumn(PgCatalog catalog)
+    {
+        _catalog = catalog;
+    }
+    private PgCatalog _catalog;
+
     [DbColumn("table_oid")]
-    internal int TableOid { get; private set; }
+    internal uint TableOid { get; private set; }
 
     [DbColumn("table_schema")]
     public string TableSchema { get; private set; } = string.Empty;
@@ -17,7 +25,7 @@ public class PgColumn
     public string ColumnName { get; private set; } = string.Empty;
 
     [DbColumn("ordinal_position")]
-    public int OrdinalPosition { get; private set; }
+    public short OrdinalPosition { get; private set; }
 
     [DbColumn("column_default")]
     public string ColumnDefault { get; private set; } = string.Empty;

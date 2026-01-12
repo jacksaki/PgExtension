@@ -1,11 +1,18 @@
-﻿using PgExtension.Query;
+﻿using PgExtension.Objects.Query;
+using PgExtension.Query;
 
 namespace PgExtension.Objects;
 
 public class PgSequence : IPgObject
 {
+    public static SQLSet GetSQLSet() => PgSequenceQuery.GenerateSQLSet();
+    internal PgSequence(PgCatalog catalog)
+    {
+        _catalog = catalog;
+    }
+    private PgCatalog _catalog;
     [DbColumn("table_oid")]
-    public int TableOid { get; private set; }
+    public uint TableOid { get; private set; }
     [DbColumn("sequence_schema")]
     public string SchemaName { get; private set; } = string.Empty;
     [DbColumn("sequence_name")]

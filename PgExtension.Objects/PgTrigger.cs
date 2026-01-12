@@ -1,9 +1,16 @@
-﻿using PgExtension.Query;
+﻿using PgExtension.Objects.Query;
+using PgExtension.Query;
 
 namespace PgExtension.Objects;
 
 public class PgTrigger : IPgObject
 {
+    public static SQLSet GetSQLSet() => PgTriggerQuery.GenerateSQLSet();
+    internal PgTrigger(PgCatalog catalog)
+    {
+        _catalog = catalog;
+    }
+    private PgCatalog _catalog;
     [DbColumn("trigger_schema")]
     public string SchemaName { get; private set; } = string.Empty;
     [DbColumn("trigger_name")]
@@ -15,10 +22,10 @@ public class PgTrigger : IPgObject
     [DbColumn("event_object_table")]
     public string? EventObjectTableName { get; private set; }
     [DbColumn("event_object_table_oid")]
-    public int? EventObjectTableOid { get; private set; }
+    public uint? EventObjectTableOid { get; private set; }
 
     [DbColumn("action_order")]
-    public int? ActionOrder { get; private set; }
+    public long? ActionOrder { get; private set; }
     [DbColumn("action_condition")]
     public string? ActionCondition { get; private set; }
     [DbColumn("action_statement")]

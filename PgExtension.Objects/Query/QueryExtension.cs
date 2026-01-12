@@ -2,11 +2,11 @@
 
 internal static class QueryExtension
 {
-    public static string? Like(this string? s)
+    public static object? Like(this string? s, object? nullValue)
     {
         if (s == null)
         {
-            return null;
+            return nullValue;
         }
         return $"%{s}%";
     }

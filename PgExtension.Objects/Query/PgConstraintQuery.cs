@@ -1,9 +1,19 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Npgsql;
+using PgExtension.Query;
+using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
 internal class PgConstraintQuery
 {
+    internal static SQLSet GenerateSQLSet()
+        => new SQLSet(SQL, new NpgsqlParameter[]
+        {
+            new NpgsqlParameter( "table_oid", NpgsqlTypes.NpgsqlDbType.Oid ),
+            new NpgsqlParameter( "schema_name", NpgsqlTypes.NpgsqlDbType.Text),
+            new NpgsqlParameter( "constraint_name", NpgsqlTypes.NpgsqlDbType.Text),
+        });
+
     private static readonly string SQL = @"SELECT
  cls.oid AS table_oid
 ,ns.nspname AS table_schema
@@ -36,8 +46,8 @@ LEFT OUTER JOIN pg_namespace fns ON (fns.oid = fcls.relnamespace)
 WHERE
 cls.relkind IN ('r', 'p') -- table / partition
 AND (@table_oid IS NULL OR cls.oid = @table_oid)
-AND (@schema_name IS NULL OR cns.nspname = @schema_name)
-AND (@constraint_name IS NULL OR con.conname = @constraint_name)
+AND (@schema_name IS NULL OR cns.nspname = @schema_name::text)
+AND (@constraint_name IS NULL OR con.conname = @constraint_name::text)
 GROUP BY
  cls.oid
 ,ns.nspname
@@ -52,30 +62,27 @@ ORDER BY
  ns.nspname
 ,cls.relname
 ,con.conname";
-    internal static async IAsyncEnumerable<PgConstraint> ListAsync(PgCatalog catalog, int tableOid, [EnumeratorCancellation] CancellationToken ct = default)
+    internal static async IAsyncEnumerable<PgConstraint> ListAsync(PgCatalog catalog, uint tableOid, [EnumeratorCancellation] CancellationToken ct = default)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            { "table_oid", tableOid },
-            { "schema_name", null },
-            { "constraint_name", null }
-        };
+        var sqlSet = PgConstraintQuery.GenerateSQLSet();
+        sqlSet["table_oid"]!.Value = tableOid;
+        sqlSet["schema_name"]!.Value = DBNull.Value;
+        sqlSet["constraint_name"]!.Value = DBNull.Value;
         using var q = catalog.CreateQuery();
-        await foreach (var con in q.SelectAsync<PgConstraint, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var con in q.SelectAsync<PgConstraint, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return con;
         }
     }
     internal static async IAsyncEnumerable<PgConstraint> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            { "table_oid", null },
-            { "schema_name", schemaName },
-            { "constraint_name", nameLike.Like() }
-        };
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_oid"]!.Value = DBNull.Value;
+        sqlSet["schema_name"]!.Value = schemaName;
+        sqlSet["constraint_name"]!.Value = nameLike.Like(DBNull.Value);
+
         using var q = catalog.CreateQuery();
-        await foreach (var con in q.SelectAsync<PgConstraint, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var con in q.SelectAsync<PgConstraint, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return con;
         }

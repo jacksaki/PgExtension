@@ -1,13 +1,17 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Npgsql;
+using PgExtension.Query;
+using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
 internal class PgSchemaQuery
 {
+    internal static SQLSet GenerateSQLSet()
+        => new SQLSet(SQL, null);
     internal static async IAsyncEnumerable<PgSchema> ListAsync(PgCatalog catalog, [EnumeratorCancellation] CancellationToken ct)
     {
         using var q = catalog.CreateQuery();
-        await foreach (var schema in q.SelectAsync<PgSchema, PgCatalog>(catalog, SQL, null, ct))
+        await foreach (var schema in q.SelectAsync<PgSchema, PgCatalog>(catalog, SQL, (NpgsqlParameter[]?)null, ct))
         {
             yield return schema;
         }

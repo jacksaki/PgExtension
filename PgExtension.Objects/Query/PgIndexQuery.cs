@@ -1,9 +1,19 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Npgsql;
+using PgExtension.Query;
+using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
 internal class PgIndexQuery
 {
+    internal static SQLSet GenerateSQLSet()
+        => new SQLSet(SQL, new NpgsqlParameter[]
+        {
+            new NpgsqlParameter("table_oid", NpgsqlTypes.NpgsqlDbType.Oid),
+            new NpgsqlParameter("schema_name", NpgsqlTypes.NpgsqlDbType.Text),
+            new NpgsqlParameter("index_name", NpgsqlTypes.NpgsqlDbType.Text),
+        });
+
     private static readonly string SQL = @"SELECT
  i.oid AS index_oid
 ,t.oid AS table_oid
@@ -30,8 +40,8 @@ INNER JOIN generate_subscripts(ix.indkey, 1) AS k ON true
 WHERE
 i.relkind = 'i'
 AND (@table_oid IS NULL OR t.oid = @table_oid)
-AND (@schema_name IS NULL OR ni.nspname = @schema_name)
-AND (@index_name IS NULL OR i.relname ILIKE @index_name)
+AND (@schema_name IS NULL OR ni.nspname = @schema_name::text)
+AND (@index_name IS NULL OR i.relname ILIKE @index_name::text)
 GROUP BY
  i.oid
 ,t.oid
@@ -45,30 +55,28 @@ ORDER BY
 ,ni.nspname
 ,t.relname
 ,i.relname";
-    internal static async IAsyncEnumerable<PgIndex> ListAsync(PgCatalog catalog, int tableOid, [EnumeratorCancellation] CancellationToken ct = default)
+    internal static async IAsyncEnumerable<PgIndex> ListAsync(PgCatalog catalog, uint tableOid, [EnumeratorCancellation] CancellationToken ct = default)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            { "table_oid", tableOid },
-            { "schema_name", null },
-            { "index_name", null },
-        };
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_oid"]!.Value = tableOid;
+        sqlSet["schema_name"]!.Value = DBNull.Value;
+        sqlSet["index_name"]!.Value = DBNull.Value;
+
         using var q = catalog.CreateQuery();
-        await foreach (var ind in q.SelectAsync<PgIndex, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var ind in q.SelectAsync<PgIndex, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return ind;
         }
     }
     internal static async IAsyncEnumerable<PgIndex> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            { "table_oid", null },
-            { "schema_name", schemaName },
-            { "index_name", nameLike.Like() },
-        };
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_oid"]!.Value = DBNull.Value;
+        sqlSet["schema_name"]!.Value = schemaName;
+        sqlSet["index_name"]!.Value = nameLike.Like(DBNull.Value);
+
         using var q = catalog.CreateQuery();
-        await foreach (var ind in q.SelectAsync<PgIndex, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var ind in q.SelectAsync<PgIndex, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return ind;
         }

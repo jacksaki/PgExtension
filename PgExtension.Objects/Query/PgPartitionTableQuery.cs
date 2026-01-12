@@ -1,9 +1,18 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Npgsql;
+using PgExtension.Query;
+using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
 internal class PgPartitionTableQuery
 {
+    internal static SQLSet GenerateSQLSet()
+        => new SQLSet(SQL, new NpgsqlParameter[]
+        {
+            new NpgsqlParameter("table_schema", NpgsqlTypes.NpgsqlDbType.Text),
+            new NpgsqlParameter("table_name", NpgsqlTypes.NpgsqlDbType.Text),
+        });
+
     private static readonly string SQL = @"SELECT
  c.oid
 ,nc.nspname::information_schema.sql_identifier AS table_schema
@@ -26,16 +35,24 @@ WHERE
 c.relkind = 'p'
 --AND NOT pg_is_other_temp_schema(nc.oid)
 AND nc.nspname = @table_schema
-AND (@table_name IS NULL OR c.relname LIKE @table_name";
+AND (@table_name IS NULL OR c.relname LIKE @table_name::text)
+GROUP BY
+ c.oid
+,table_schema
+,table_name
+,is_insertable_into
+,partition_key
+ORDER BY
+ table_schema
+,table_name";
     internal static async IAsyncEnumerable<PgPartitionTable> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            { "table_schema", schemaName },
-            { "table_name", nameLike.Like() },
-        };
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_schema"]!.Value = schemaName;
+        sqlSet["table_name"]!.Value = nameLike.Like(DBNull.Value);
+
         using var q = catalog.CreateQuery();
-        await foreach (var table in q.SelectAsync<PgPartitionTable, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var table in q.SelectAsync<PgPartitionTable, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return table;
         }

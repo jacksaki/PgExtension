@@ -1,11 +1,25 @@
-﻿using PgExtension.Query;
+﻿using PgExtension.Objects.Query;
+using PgExtension.Query;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace PgExtension.Objects;
 
 [DbClass(nameof(RefreshItems))]
-public class PgPartitionTable
+public class PgPartitionTable:PgRelationBase
 {
+    public static SQLSet GetSQLSet() => PgPartitionTableQuery.GenerateSQLSet();
+    internal PgPartitionTable(PgCatalog catalog) : base(catalog)
+    {
+    }
+
+    [DbColumn("oid")]
+    public uint Oid
+    {
+        get => base._oid;
+        private set => base._oid = value;
+    }
+
     private void RefreshItems()
     {
         if (!string.IsNullOrEmpty(_children))
@@ -26,8 +40,6 @@ public class PgPartitionTable
         }
     }
 
-    [DbColumn("oid")]
-    public int Oid { get; private set; }
     [DbColumn("table_schema")]
     public string SchemaName { get; private set; } = string.Empty;
     [DbColumn("table_name")]

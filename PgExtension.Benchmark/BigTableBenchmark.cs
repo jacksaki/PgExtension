@@ -51,7 +51,7 @@ public class BigTableBenchmark
         var sql = "SELECT name,age,score,created_at,id,payload,note FROM big_table";
         using (var q = new PgQuery(conn))
         {
-            await foreach (var row in q.SelectAsync<BigTable>(sql, null))
+            await foreach (var row in q.SelectAsync<BigTable>(sql, (NpgsqlParameter[]?)null))
             {
                 //  Console.WriteLine(row.Id);
             }
@@ -100,7 +100,7 @@ public class BigTableBenchmark
         var sql = "SELECT name,age,score,created_at,id,payload,note FROM big_table";
         using (var q = new PgQuery(conn))
         {
-            await foreach (var row in q.SelectAsync<BigTable3>(sql, null))
+            await foreach (var row in q.SelectAsync<BigTable3>(sql, (NpgsqlParameter[]?)null))
             {
                 //  Console.WriteLine(row.Id);
             }
@@ -148,7 +148,7 @@ public class BigTableBenchmark
         var sql = "SELECT name,age,score,created_at,id,payload,note FROM big_table";
         using (var q = new PgQuery(conn))
         {
-            await foreach (var row in q.SelectAsync<BigTable4>(sql, null))
+            await foreach (var row in q.SelectAsync<BigTable4>(sql, (NpgsqlParameter[]?)null))
             {
                 //  Console.WriteLine(row.Id);
             }

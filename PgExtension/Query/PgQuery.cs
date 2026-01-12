@@ -75,6 +75,44 @@ public partial class PgQuery : IDisposable
         return command;
     }
 
+    /// <summary>If connection is not open then open and create command.</summary>
+    /// <param name="query">SQL code.</param>
+    /// <param name="commandType">Command Type.</param>
+    /// <param name="parameter">PropertyName parameterized to PropertyName. if null then no use parameter.</param>
+    /// <returns>Setuped IDbCommand.</returns>
+    protected NpgsqlCommand PrepareExecute(string query, CommandType commandType, NpgsqlParameter[]? parameter)
+    {
+        Contract.Ensures(Contract.Result<NpgsqlCommand>() != null);
+
+        if (connection.State != ConnectionState.Open)
+        {
+            connection.Open();
+        }
+        if (transaction == null && isUseTransaction)
+        {
+            transaction = connection.BeginTransaction(isolationLevel);
+        }
+
+        var command = connection.CreateCommand();
+        command.CommandText = query;
+        command.CommandType = commandType;
+
+        if (parameter != null)
+        {
+            foreach (var p in parameter)
+            {
+                command.Parameters.Add(p);
+            }
+        }
+
+        if (transaction != null)
+        {
+            command.Transaction = transaction;
+        }
+
+        return command;
+    }
+
     #region Select
     public IEnumerable<T> Select<T>(string query, IDictionary<string, object?>? parameter = null, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
@@ -217,6 +255,146 @@ public partial class PgQuery : IDisposable
             yield return record.Create<T, T0, T1, T2, T3, T4, T5, T6, T7>(t0, t1, t2, t3, t4, t5, t6, t7);
         }
     }
+
+    public async IAsyncEnumerable<T> SelectAsync<T>(string query, NpgsqlParameter[]? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T>();
+        }
+    }
+
+    public async IAsyncEnumerable<T> SelectAsync<T, T0>(T0 t0, string query, NpgsqlParameter[]? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0>(t0);
+        }
+    }
+
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1>(T0 t0, T1 t1, string query, NpgsqlParameter[]? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1>(t0, t1);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2>(T0 t0, T1 t1, T2 t2, string query, NpgsqlParameter[]? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1, T2>(t0, t1, t2);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3>(T0 t0, T1 t1, T2 t2, T3 t3, string query, NpgsqlParameter[]? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1, T2, T3>(t0, t1, t2, t3);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, string query, NpgsqlParameter[]? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4>(t0, t1, t2, t3, t4);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, string query, NpgsqlParameter[]? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4, T5>(t0, t1, t2, t3, t4, t5);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5, T6>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, string query, NpgsqlParameter[]? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4, T5, T6>(t0, t1, t2, t3, t4, t5, t6);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5, T6, T7>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, string query, NpgsqlParameter[]? parameter, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4, T5, T6, T7>(t0, t1, t2, t3, t4, t5, t6, t7);
+        }
+    }
+
+
+
+
+
+
+
+
+
+    public async IAsyncEnumerable<T> SelectAsync<T>(SQLSet sqlSet, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(sqlSet.SQL, sqlSet.Parameters, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T>();
+        }
+    }
+
+    public async IAsyncEnumerable<T> SelectAsync<T, T0>(T0 t0, SQLSet sqlSet, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(sqlSet.SQL, sqlSet.Parameters, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0>(t0);
+        }
+    }
+
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1>(T0 t0, T1 t1, SQLSet sqlSet, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(sqlSet.SQL, sqlSet.Parameters, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1>(t0, t1);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2>(T0 t0, T1 t1, T2 t2, SQLSet sqlSet, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(sqlSet.SQL, sqlSet.Parameters, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1, T2>(t0, t1, t2);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3>(T0 t0, T1 t1, T2 t2, T3 t3, SQLSet sqlSet, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(sqlSet.SQL, sqlSet.Parameters, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1, T2, T3>(t0, t1, t2, t3);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, SQLSet sqlSet, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(sqlSet.SQL, sqlSet.Parameters, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4>(t0, t1, t2, t3, t4);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, SQLSet sqlSet, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(sqlSet.SQL, sqlSet.Parameters, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4, T5>(t0, t1, t2, t3, t4, t5);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5, T6>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, SQLSet sqlSet, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(sqlSet.SQL, sqlSet.Parameters, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4, T5, T6>(t0, t1, t2, t3, t4, t5, t6);
+        }
+    }
+    public async IAsyncEnumerable<T> SelectAsync<T, T0, T1, T2, T3, T4, T5, T6, T7>(T0 t0, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, SQLSet sqlSet, [EnumeratorCancellation] CancellationToken ct = default, CommandType commandType = CommandType.Text, CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        await foreach (var record in YieldReaderHelperAsync(sqlSet.SQL, sqlSet.Parameters, commandType, commandBehavior, ct))
+        {
+            yield return record.Create<T, T0, T1, T2, T3, T4, T5, T6, T7>(t0, t1, t2, t3, t4, t5, t6, t7);
+        }
+    }
     #endregion
 
     IEnumerable<NpgsqlDataReader> YieldReaderHelper(string query, IDictionary<string, object?>? parameter, CommandType commandType, CommandBehavior commandBehavior)
@@ -230,10 +408,54 @@ public partial class PgQuery : IDisposable
             }
         }
     }
+    IEnumerable<NpgsqlDataReader> YieldReaderHelper(string query, NpgsqlParameter[]? parameter, CommandType commandType, CommandBehavior commandBehavior)
+    {
+        using (var command = PrepareExecute(query, commandType, parameter))
+        using (var reader = command.ExecuteReader(commandBehavior))
+        {
+            while (reader.Read())
+            {
+                yield return reader;
+            }
+        }
+    }
+    IEnumerable<NpgsqlDataReader> YieldReaderHelper(SQLSet sqlSet, CommandType commandType, CommandBehavior commandBehavior)
+    {
+        using (var command = PrepareExecute(sqlSet.SQL, commandType, sqlSet.Parameters))
+        using (var reader = command.ExecuteReader(commandBehavior))
+        {
+            while (reader.Read())
+            {
+                yield return reader;
+            }
+        }
+    }
 
     async IAsyncEnumerable<NpgsqlDataReader> YieldReaderHelperAsync(string query, IDictionary<string, object?>? parameter, CommandType commandType, CommandBehavior commandBehavior, [EnumeratorCancellation] CancellationToken ct = default)
     {
         using (var command = PrepareExecute(query, commandType, parameter))
+        using (var reader = await command.ExecuteReaderAsync(commandBehavior, ct))
+        {
+            while (await reader.ReadAsync(ct))
+            {
+                yield return reader;
+            }
+        }
+    }
+    async IAsyncEnumerable<NpgsqlDataReader> YieldReaderHelperAsync(string query, NpgsqlParameter[]? parameter, CommandType commandType, CommandBehavior commandBehavior, [EnumeratorCancellation] CancellationToken ct = default)
+    {
+        using (var command = PrepareExecute(query, commandType, parameter))
+        using (var reader = await command.ExecuteReaderAsync(commandBehavior, ct))
+        {
+            while (await reader.ReadAsync(ct))
+            {
+                yield return reader;
+            }
+        }
+    }
+    async IAsyncEnumerable<NpgsqlDataReader> YieldReaderHelperAsync(SQLSet sqlSet, CommandType commandType, CommandBehavior commandBehavior, [EnumeratorCancellation] CancellationToken ct = default)
+    {
+        using (var command = PrepareExecute(sqlSet.SQL, commandType, sqlSet.Parameters))
         using (var reader = await command.ExecuteReaderAsync(commandBehavior, ct))
         {
             while (await reader.ReadAsync(ct))
@@ -260,6 +482,16 @@ public partial class PgQuery : IDisposable
 
         return YieldReaderHelper(query, parameter, commandType, commandBehavior);
     }
+    public IEnumerable<NpgsqlDataReader> ExecuteReader(
+        SQLSet sqlSet,
+        CommandType commandType = CommandType.Text,
+        CommandBehavior commandBehavior = CommandBehavior.Default)
+    {
+        Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(sqlSet.SQL));
+        Contract.Ensures(Contract.Result<IEnumerable<NpgsqlDataReader>>() != null);
+
+        return YieldReaderHelper(sqlSet, commandType, commandBehavior);
+    }
 
     /// <summary>Executes and returns the data records.</summary>
     /// <param name="query">SQL code.</param>
@@ -278,6 +510,21 @@ public partial class PgQuery : IDisposable
         Contract.Ensures(Contract.Result<IEnumerable<NpgsqlDataReader>>() != null);
 
         await foreach (var r in YieldReaderHelperAsync(query, parameter, commandType, commandBehavior, ct))
+        {
+            yield return r;
+        }
+    }
+
+    public async IAsyncEnumerable<NpgsqlDataReader> ExecuteReaderAsync(
+        SQLSet sqlSet,
+        CommandType commandType = CommandType.Text,
+        CommandBehavior commandBehavior = CommandBehavior.Default,
+        [EnumeratorCancellation] CancellationToken ct = default)
+    {
+        Contract.Requires<ArgumentException>(!string.IsNullOrEmpty(sqlSet.SQL));
+        Contract.Ensures(Contract.Result<IEnumerable<NpgsqlDataReader>>() != null);
+
+        await foreach (var r in YieldReaderHelperAsync(sqlSet, commandType, commandBehavior, ct))
         {
             yield return r;
         }
@@ -377,6 +624,16 @@ public partial class PgQuery : IDisposable
         using (var exec = new PgQuery(connection))
         {
             foreach (var item in exec.ExecuteReader(query, parameter, commandType, commandBehavior))
+            {
+                yield return item;
+            }
+        }
+    }
+    static IEnumerable<NpgsqlDataReader> ExecuteReaderHelper(NpgsqlConnection connection, SQLSet sqlSet, CommandType commandType, CommandBehavior commandBehavior)
+    {
+        using (var exec = new PgQuery(connection))
+        {
+            foreach (var item in exec.ExecuteReader(sqlSet, commandType, commandBehavior))
             {
                 yield return item;
             }

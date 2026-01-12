@@ -1,4 +1,5 @@
-﻿using PgExtension.Query;
+﻿using PgExtension.Objects.Query;
+using PgExtension.Query;
 using System.Text.Json;
 
 namespace PgExtension.Objects;
@@ -6,6 +7,13 @@ namespace PgExtension.Objects;
 [DbClass(nameof(RefreshColumns))]
 public class PgConstraint : IPgObject
 {
+    public static SQLSet GetSQLSet() => PgConstraintQuery.GenerateSQLSet();
+    internal PgConstraint(PgCatalog catalog)
+    {
+        _catalog = catalog;
+    }
+
+    private PgCatalog _catalog;
     private void RefreshColumns()
     {
         if (!string.IsNullOrEmpty(_columns))
@@ -26,7 +34,7 @@ public class PgConstraint : IPgObject
         }
     }
     [DbColumn("table_oid")]
-    public int TableOid { get; private set; }
+    public uint TableOid { get; private set; }
     [DbColumn("table_schema")]
     public string TableSchema { get; private set; } = string.Empty;
     [DbColumn("table_name")]

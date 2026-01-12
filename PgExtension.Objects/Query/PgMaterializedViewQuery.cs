@@ -1,9 +1,17 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Npgsql;
+using PgExtension.Query;
+using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
 internal class PgMaterializedViewQuery
 {
+    internal static SQLSet GenerateSQLSet()
+        => new SQLSet(SQL, new NpgsqlParameter[]
+        {
+            new NpgsqlParameter("mview_schema", NpgsqlTypes.NpgsqlDbType.Text),
+            new NpgsqlParameter("mview_name", NpgsqlTypes.NpgsqlDbType.Text),
+        });
     private static readonly string SQL = @"SELECT
  c.oid
 ,nc.nspname::information_schema.sql_identifier AS mview_schema
@@ -18,20 +26,19 @@ WHERE
 c.relkind = 'm'
 --AND NOT pg_is_other_temp_schema(nc.oid)
 AND nc.nspname = @mview_schema
-AND (@mview_name IS NULL OR c.relname ILIKE @mview_name)
+AND (@mview_name IS NULL OR c.relname ILIKE @mview_name::text)
 ORDER BY
  nc.nspname
 ,c.relname";
 
     internal static async IAsyncEnumerable<PgMaterializedView> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            { "mview_schema", schemaName },
-            { "mview_name", nameLike.Like() },
-        };
+        var sqlSet = GenerateSQLSet();
+        sqlSet["mview_schema"]!.Value = schemaName;
+        sqlSet["mview_name"]!.Value = nameLike.Like(DBNull.Value);
+
         using var q = catalog.CreateQuery();
-        await foreach (var mview in q.SelectAsync<PgMaterializedView, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var mview in q.SelectAsync<PgMaterializedView, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return mview;
         }

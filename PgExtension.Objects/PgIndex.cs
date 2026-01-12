@@ -1,4 +1,5 @@
-﻿using PgExtension.Query;
+﻿using PgExtension.Objects.Query;
+using PgExtension.Query;
 using System.Text.Json;
 
 namespace PgExtension.Objects;
@@ -6,6 +7,13 @@ namespace PgExtension.Objects;
 [DbClass(nameof(RefreshColumns))]
 public class PgIndex
 {
+    public static SQLSet GetSQLSet() => PgIndexQuery.GenerateSQLSet();
+    internal PgIndex(PgCatalog catalog)
+    {
+        _catalog = catalog;
+    }
+    private PgCatalog _catalog;
+
     internal void RefreshColumns()
     {
         if (!string.IsNullOrEmpty(_columns))
@@ -26,9 +34,9 @@ public class PgIndex
         }
     }
     [DbColumn("index_oid")]
-    public int Oid { get; private set; }
+    public uint Oid { get; private set; }
     [DbColumn("table_oid")]
-    public int TableOid { get; private set; }
+    public uint TableOid { get; private set; }
     [DbColumn("table_schema")]
     public string TableSchema { get; private set; } = string.Empty;
     [DbColumn("table_name")]

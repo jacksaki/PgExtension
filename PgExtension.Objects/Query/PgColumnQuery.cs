@@ -1,9 +1,16 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Npgsql;
+using PgExtension.Query;
+using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
 internal class PgColumnQuery
 {
+    internal static SQLSet GenerateSQLSet()
+        => new SQLSet(SQL, new NpgsqlParameter[]
+        {
+            new NpgsqlParameter("table_oid", NpgsqlTypes.NpgsqlDbType.Oid)
+        });
     private static readonly string SQL = @"SELECT
  c.oid AS table_oid
 ,nc.nspname AS table_schema
@@ -66,16 +73,12 @@ AND c.relkind IN ('r', 'v', 'f', 'p', 't', 'm')
 AND c.oid = @table_oid
 ORDER BY
  a.attnum";
-    internal static async IAsyncEnumerable<PgColumn> ListColumnsAsync(PgCatalog catalog, int tableOid, [EnumeratorCancellation] CancellationToken ct = default)
+    internal static async IAsyncEnumerable<PgColumn> ListColumnsAsync(PgCatalog catalog, uint tableOid, [EnumeratorCancellation] CancellationToken ct = default)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            {
-               "table_oid", tableOid
-            }
-        };
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_oid"]!.Value = tableOid;
         using var q = catalog.CreateQuery();
-        await foreach (var result in q.SelectAsync<PgColumn>(SQL, p, ct))
+        await foreach (var result in q.SelectAsync<PgColumn,PgCatalog>(catalog, sqlSet, ct))
         {
             yield return result;
         }

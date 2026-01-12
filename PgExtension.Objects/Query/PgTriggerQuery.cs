@@ -1,9 +1,19 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Npgsql;
+using PgExtension.Query;
+using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
 internal class PgTriggerQuery
 {
+    internal static SQLSet GenerateSQLSet()
+        => new SQLSet(SQL, new NpgsqlParameter[]
+        {
+            new NpgsqlParameter("table_oid", NpgsqlTypes.NpgsqlDbType.Oid),
+            new NpgsqlParameter("schema_name", NpgsqlTypes.NpgsqlDbType.Text),
+            new NpgsqlParameter("trigger_name", NpgsqlTypes.NpgsqlDbType.Text),
+        });
+
     private static readonly string SQL = @"SELECT
  n.nspname AS trigger_schema
 ,t.tgname AS trigger_name
@@ -33,35 +43,33 @@ AND NOT pg_is_other_temp_schema(n.oid)
 --	OR has_any_column_privilege(c.oid, 'INSERT, UPDATE, REFERENCES')
 --)
 AND (@table_oid IS NULL OR c.oid = @table_oid)
-AND (@schema_name IS NULL OR n.nspname = @schema_name)
-AND (@trigger_name IS NULL OR t.tgname ILIKE @trigger_name)
+AND (@schema_name IS NULL OR n.nspname = @schema_name::text)
+AND (@trigger_name IS NULL OR t.tgname ILIKE @trigger_name::text)
 ORDER BY
  n.nspname
 ,t.tgname";
-    internal static async IAsyncEnumerable<PgTrigger> ListAsync(PgCatalog catalog, int tableOid, [EnumeratorCancellation] CancellationToken ct = default)
+    internal static async IAsyncEnumerable<PgTrigger> ListAsync(PgCatalog catalog, uint tableOid, [EnumeratorCancellation] CancellationToken ct = default)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            { "table_oid", tableOid },
-            { "schema_name", null },
-            { "trigger_name", null },
-        };
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_oid"]!.Value = tableOid;
+        sqlSet["schema_name"]!.Value = DBNull.Value;
+        sqlSet["trigger_name"]!.Value = DBNull.Value;
+
         using var q = catalog.CreateQuery();
-        await foreach (var trigger in q.SelectAsync<PgTrigger, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var trigger in q.SelectAsync<PgTrigger, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return trigger;
         }
     }
     internal static async IAsyncEnumerable<PgTrigger> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            { "table_oid", null },
-            { "schema_name", schemaName },
-            { "trigger_name", nameLike.Like() },
-        };
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_oid"]!.Value = DBNull.Value;
+        sqlSet["schema_name"]!.Value = schemaName;
+        sqlSet["trigger_name"]!.Value = nameLike.Like(DBNull.Value);
+
         using var q = catalog.CreateQuery();
-        await foreach (var trigger in q.SelectAsync<PgTrigger, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var trigger in q.SelectAsync<PgTrigger, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return trigger;
         }

@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects;
 
-internal sealed class PgCatalog
+public sealed class PgCatalog
 {
     private readonly string _connectionString;
 
@@ -11,11 +11,12 @@ internal sealed class PgCatalog
     {
         _connectionString = connectionString;
     }
+
     internal PgQuery CreateQuery()
     {
         return new PgQuery(_connectionString);
     }
-    internal async IAsyncEnumerable<PgColumn> ListColumnsAsync(int oid, [EnumeratorCancellation] CancellationToken ct)
+    internal async IAsyncEnumerable<PgColumn> ListColumnsAsync(uint oid, [EnumeratorCancellation] CancellationToken ct)
     {
         await foreach (var col in PgColumnQuery.ListColumnsAsync(this, oid, ct))
         {
@@ -23,7 +24,7 @@ internal sealed class PgCatalog
         }
     }
 
-    internal async IAsyncEnumerable<PgConstraint> ListConstraintsAsync(int tableOid, [EnumeratorCancellation] CancellationToken ct)
+    internal async IAsyncEnumerable<PgConstraint> ListConstraintsAsync(uint tableOid, [EnumeratorCancellation] CancellationToken ct)
     {
         await foreach (var con in PgConstraintQuery.ListAsync(this, tableOid, ct))
         {
@@ -53,7 +54,7 @@ internal sealed class PgCatalog
         }
     }
 
-    internal async IAsyncEnumerable<PgIndex> ListIndexesAsync(int tableOid, [EnumeratorCancellation] CancellationToken ct)
+    internal async IAsyncEnumerable<PgIndex> ListIndexesAsync(uint tableOid, [EnumeratorCancellation] CancellationToken ct)
     {
         await foreach (var ind in PgIndexQuery.ListAsync(this, tableOid, ct))
         {
@@ -106,7 +107,7 @@ internal sealed class PgCatalog
             yield return seq;
         }
     }
-    internal async IAsyncEnumerable<PgSequence> ListSequencesAsync(int tableOid, [EnumeratorCancellation] CancellationToken ct)
+    internal async IAsyncEnumerable<PgSequence> ListSequencesAsync(uint tableOid, [EnumeratorCancellation] CancellationToken ct)
     {
         await foreach (var seq in PgSequenceQuery.ListAsync(this, tableOid, ct))
         {
@@ -130,7 +131,7 @@ internal sealed class PgCatalog
             yield return trigger;
         }
     }
-    internal async IAsyncEnumerable<PgTrigger> ListTriggersAsync(int tableOid, [EnumeratorCancellation] CancellationToken ct)
+    internal async IAsyncEnumerable<PgTrigger> ListTriggersAsync(uint tableOid, [EnumeratorCancellation] CancellationToken ct)
     {
         await foreach (var trigger in PgTriggerQuery.ListAsync(this, tableOid, ct))
         {

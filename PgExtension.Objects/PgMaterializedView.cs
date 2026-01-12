@@ -1,11 +1,23 @@
-﻿using PgExtension.Query;
+﻿using PgExtension.Objects.Query;
+using PgExtension.Query;
+using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects;
 
-public class PgMaterializedView
+public class PgMaterializedView: PgRelationBase
 {
+    public static SQLSet GetSQLSet() => PgMaterializedViewQuery.GenerateSQLSet();
+    internal PgMaterializedView(PgCatalog catalog) : base(catalog)
+    {
+    }
+
     [DbColumn("oid")]
-    public int Oid { get; private set; }
+    public uint Oid
+    {
+        get => base._oid;
+        private set => base._oid = value;
+    }
+
     [DbColumn("mview_schema")]
     public string SchemaName { get; private set; } = string.Empty;
     [DbColumn("mview_name")]

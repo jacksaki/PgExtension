@@ -1,9 +1,18 @@
-﻿using PgExtension.Query;
+﻿using PgExtension.Objects.Query;
+using PgExtension.Query;
 
 namespace PgExtension.Objects;
 
 public class PgFunction : IPgObject
 {
+    public static SQLSet GetSQLSet() => PgFunctionQuery.GenerateSQLSet();
+
+    internal PgFunction(PgCatalog catalog)
+    {
+        _catalog = catalog;
+    }
+    private PgCatalog _catalog;
+
     [DbColumn("routine_schema")]
     public string SchemaName { get; private set; } = string.Empty;
     [DbColumn("routine_name")]

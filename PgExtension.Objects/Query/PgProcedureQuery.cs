@@ -1,9 +1,18 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Npgsql;
+using PgExtension.Query;
+using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects.Query;
 
 internal class PgProcedureQuery
 {
+    internal static SQLSet GenerateSQLSet()
+        => new SQLSet(SQL, new NpgsqlParameter[]
+        {
+            new NpgsqlParameter("schema_name", NpgsqlTypes.NpgsqlDbType.Text),
+            new NpgsqlParameter("proc_name", NpgsqlTypes.NpgsqlDbType.Text),
+        });
+
     private static readonly string SQL = @"SELECT
  n.nspname AS routine_schema
 ,p.proname AS routine_name
@@ -41,20 +50,18 @@ ON (type_map.src = dt.raw_data_type)
 WHERE
 n.nspname = @schema_name
 AND p.prokind = 'p'
-AND (@proc_name IS NULL OR p.proname ILIKE @proc_name)
+AND (@proc_name IS NULL OR p.proname ILIKE @proc_name::text)
 ORDER BY
  n.nspname
 ,p.proname";
 
     internal static async IAsyncEnumerable<PgProcedure> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
     {
-        var p = new Dictionary<string, object?>()
-        {
-            { "schema_name", schemaName },
-            { "proc_name", nameLike.Like() },
-        };
+        var sqlSet = GenerateSQLSet();
+        sqlSet["schema_name"]!.Value = schemaName;
+        sqlSet["proc_name"]!.Value = nameLike.Like(DBNull.Value);
         using var q = catalog.CreateQuery();
-        await foreach (var f in q.SelectAsync<PgProcedure, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var f in q.SelectAsync<PgProcedure, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return f;
         }
