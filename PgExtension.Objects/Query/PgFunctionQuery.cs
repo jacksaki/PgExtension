@@ -15,7 +15,7 @@ internal class PgFunctionQuery
 ,p.provolatile = 'i' AS is_deterministic
 FROM
  pg_namespace n
-INNER JOIN pg_proc p ON (n.oid = p.pronamespace)
+INNER JOIN pg_proc p ON (n.oid = p.pronamespace) 
 INNER JOIN pg_language l ON (p.prolang = l.oid)
 LEFT OUTER JOIN pg_type t ON (p.prorettype = t.oid AND p.prokind <> 'p')
 LEFT OUTER JOIN pg_namespace nt ON (t.typnamespace = nt.oid)
