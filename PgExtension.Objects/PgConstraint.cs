@@ -1,5 +1,53 @@
-﻿namespace PgExtension.Objects;
+﻿using PgExtension.Query;
+using System.Text.Json;
 
-public class PgConstraint
+namespace PgExtension.Objects;
+
+[DbClass(nameof(RefreshColumns))]
+public class PgConstraint : IPgObject
 {
+    private void RefreshColumns()
+    {
+        if (!string.IsNullOrEmpty(_columns))
+        {
+            var array = JsonSerializer.Deserialize<PgConstraintColumn[]>(_columns);
+            if (array == null)
+            {
+                this.ColumnNames = Array.Empty<string>().AsReadOnly();
+            }
+            else
+            {
+                this.ColumnNames = array.Select(x => x.ColumnName).ToList().AsReadOnly();
+            }
+        }
+        else
+        {
+            this.ColumnNames = Array.Empty<string>().AsReadOnly();
+        }
+    }
+    [DbColumn("table_oid")]
+    public int TableOid { get; private set; }
+    [DbColumn("table_schema")]
+    public string TableSchema { get; private set; } = string.Empty;
+    [DbColumn("table_name")]
+    public string TableName { get; private set; } = string.Empty;
+    [DbColumn("constraint_schema")]
+    public string SchemaName { get; private set; } = string.Empty;
+    [DbColumn("constraint_name")]
+    public string Name { get; private set; } = string.Empty;
+    [DbColumn("constraint_type")]
+    public string? ConstraintType { get; private set; }
+
+    [DbColumn("columns")]
+    private string? _columns = null;
+
+    public IReadOnlyList<string> ColumnNames { get; private set; } = Array.Empty<string>();
+
+    [DbColumn("constraint_definition")]
+    public string? Definition { get; private set; }
+    [DbColumn("foreign_table_schema")]
+    public string? ForeignTableSchema { get; private set; }
+    [DbColumn("foreign_table_name")]
+    public string? ForeignTableName { get; private set; }
+
 }

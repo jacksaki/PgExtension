@@ -2,7 +2,7 @@
 
 namespace PgExtension.Objects.Query;
 
-internal class PgForeginTableQuery
+internal class PgForeignTableQuery
 {
     private static readonly string SQL = @"SELECT
  c.oid
@@ -26,7 +26,7 @@ ORDER BY
  nc.nspname
 ,c.relname";
 
-    internal static async IAsyncEnumerable<PgForeginTable> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct)
+    internal static async IAsyncEnumerable<PgForeignTable> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct)
     {
         var p = new Dictionary<string, object?>()
         {
@@ -34,7 +34,7 @@ ORDER BY
             { "table_name", nameLike.Like() },
         };
         using var q = catalog.CreateQuery();
-        await foreach (var table in q.SelectAsync<PgForeginTable, PgCatalog>(catalog, SQL, p, ct))
+        await foreach (var table in q.SelectAsync<PgForeignTable, PgCatalog>(catalog, SQL, p, ct))
         {
             yield return table;
         }

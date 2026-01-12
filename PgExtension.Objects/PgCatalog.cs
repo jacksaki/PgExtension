@@ -37,9 +37,9 @@ internal sealed class PgCatalog
             yield return con;
         }
     }
-    internal async IAsyncEnumerable<PgForeginTable> ListForeginTablesAsync(string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct)
+    internal async IAsyncEnumerable<PgForeignTable> ListForeignTablesAsync(string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct)
     {
-        await foreach (var ftable in PgForeginTableQuery.ListAsync(this, schemaName, nameLike, ct))
+        await foreach (var ftable in PgForeignTableQuery.ListAsync(this, schemaName, nameLike, ct))
         {
             yield return ftable;
         }

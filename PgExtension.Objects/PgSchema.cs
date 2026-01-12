@@ -14,6 +14,7 @@ public sealed class PgSchema
 
     [DbColumn("schema_name")]
     public string Name { get; private set; } = string.Empty;
+
     [DbColumn("schema_owner")]
     public string Owner { get; private set; } = string.Empty;
 

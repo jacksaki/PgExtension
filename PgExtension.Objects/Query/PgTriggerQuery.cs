@@ -10,6 +10,7 @@ internal class PgTriggerQuery
 ,em.text AS event_manipulation
 ,n.nspname AS event_object_schema
 ,c.relname AS event_object_table
+,c.oid AS event_object_table_oid
 ,rank() OVER (PARTITION BY n.nspname, c.relname, em.num, (t.tgtype::integer & 1), (t.tgtype::integer & 66) ORDER BY t.tgname) AS action_order
 ,CASE WHEN pg_has_role(c.relowner, 'USAGE') THEN (regexp_match(pg_get_triggerdef(t.oid), '.{35,} WHEN \((.+)\) EXECUTE FUNCTION'))[1] ELSE NULL END AS action_condition
 ,SUBSTRING(pg_get_triggerdef(t.oid) FROM POSITION(('EXECUTE FUNCTION') IN (SUBSTRING(pg_get_triggerdef(t.oid) FROM 48))) + 47) AS action_statement
