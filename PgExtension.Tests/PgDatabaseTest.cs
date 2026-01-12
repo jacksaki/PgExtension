@@ -1,162 +1,175 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PgExtension.Objects;
+using PgExtension.Query;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace PgExtension.Tests
 {
     public class PgDatabaseTest
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public PgDatabaseTest(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
         [Fact]
         public async Task TestAsync()
         {
             var db = new PgDatabase(System.Environment.GetEnvironmentVariable("connection_string") ?? string.Empty);
+            var options = new JsonSerializerOptions() { WriteIndented = true };
             await foreach(var schema in db.ListSchemaAsync())
             {
+                _testOutputHelper.WriteLine(schema.Name);
                 await foreach(var table in schema.ListTablesAsync(null))
                 {
-                    await foreach(var col in table.ListColumnsAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Table: {table.SchemaName}.{table.Name}");
+                    _testOutputHelper.WriteLine($"Columns:");
+                    var columns = await table.ListColumnsAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(columns, options));
 
-                    }
-                    await foreach(var index in table.ListIndexesAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Indexes:");
+                    var ind = await table.ListIndexesAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(ind, options));
 
-                    }
-                    await foreach(var trigger in table.ListTriggersAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Triggers:");
+                    var trg = await table.ListTriggersAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(trg, options));
 
-                    }
-                    await foreach(var con in table.ListConstraintsAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Constraints:");
+                    var con = await table.ListConstraintsAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(con, options));
 
-                    }
-                    await foreach(var seq in table.ListSequencesAsync())
-                    {
-
-                    }
+                    _testOutputHelper.WriteLine($"Sequences:");
+                    var seq = await table.ListSequencesAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(seq, options));
                 }
                 await foreach (var view in schema.ListViewsAsync(null))
                 {
-                    await foreach (var col in view.ListColumnsAsync())
-                    {
+                    _testOutputHelper.WriteLine($"View: {view.SchemaName}.{view.Name}");
+                    _testOutputHelper.WriteLine($"Columns:");
+                    var columns = await view.ListColumnsAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(columns, options));
 
-                    }
-                    await foreach (var index in view.ListIndexesAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Indexes:");
+                    var ind = await view.ListIndexesAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(ind, options));
 
-                    }
-                    await foreach (var trigger in view.ListTriggersAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Triggers:");
+                    var trg = await view.ListTriggersAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(trg, options));
 
-                    }
-                    await foreach (var con in view.ListConstraintsAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Constraints:");
+                    var con = await view.ListConstraintsAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(con, options));
 
-                    }
-                    await foreach (var seq in view.ListSequencesAsync())
-                    {
-
-                    }
+                    _testOutputHelper.WriteLine($"Sequences:");
+                    var seq = await view.ListSequencesAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(seq, options));
                 }
                 await foreach (var mview in schema.ListMaterializedViewsAsync(null))
                 {
-                    await foreach (var col in mview.ListColumnsAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Materialized View: {mview.SchemaName}.{mview.Name}");
+                    _testOutputHelper.WriteLine($"Columns:");
+                    var columns = await mview.ListColumnsAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(columns, options));
 
-                    }
-                    await foreach (var index in mview.ListIndexesAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Indexes:");
+                    var ind = await mview.ListIndexesAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(ind, options));
 
-                    }
-                    await foreach (var trigger in mview.ListTriggersAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Triggers:");
+                    var trg = await mview.ListTriggersAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(trg, options));
 
-                    }
-                    await foreach (var con in mview.ListConstraintsAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Constraints:");
+                    var con = await mview.ListConstraintsAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(con, options));
 
-                    }
-                    await foreach (var seq in mview.ListSequencesAsync())
-                    {
-
-                    }
+                    _testOutputHelper.WriteLine($"Sequences:");
+                    var seq = await mview.ListSequencesAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(seq, options));
                 }
                 await foreach (var ftable in schema.ListForeignTablesAsync(null))
                 {
-                    await foreach (var col in ftable.ListColumnsAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Foreign Table: {ftable.SchemaName}.{ftable.Name}");
+                    _testOutputHelper.WriteLine($"Columns:");
+                    var columns = await ftable.ListColumnsAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(columns, options));
 
-                    }
-                    await foreach (var index in ftable.ListIndexesAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Indexes:");
+                    var ind = await ftable.ListIndexesAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(ind, options));
 
-                    }
-                    await foreach (var trigger in ftable.ListTriggersAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Triggers:");
+                    var trg = await ftable.ListTriggersAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(trg, options));
 
-                    }
-                    await foreach (var con in ftable.ListConstraintsAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Constraints:");
+                    var con = await ftable.ListConstraintsAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(con, options));
 
-                    }
-                    await foreach (var seq in ftable.ListSequencesAsync())
-                    {
-
-                    }
+                    _testOutputHelper.WriteLine($"Sequences:");
+                    var seq = await ftable.ListSequencesAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(seq, options));
                 }
                 await foreach (var ptable in schema.ListPartitionTablesAsync(null))
                 {
-                    await foreach (var col in ptable.ListColumnsAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Partition Table: {ptable.SchemaName}.{ptable.Name}");
+                    _testOutputHelper.WriteLine($"Columns:");
+                    var columns = await ptable.ListColumnsAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(columns, options));
 
-                    }
-                    await foreach (var index in ptable.ListIndexesAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Indexes:");
+                    var ind = await ptable.ListIndexesAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(ind, options));
 
-                    }
-                    await foreach (var trigger in ptable.ListTriggersAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Triggers:");
+                    var trg = await ptable.ListTriggersAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(trg, options));
 
-                    }
-                    await foreach (var con in ptable.ListConstraintsAsync())
-                    {
+                    _testOutputHelper.WriteLine($"Constraints:");
+                    var con = await ptable.ListConstraintsAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(con, options));
 
-                    }
-                    await foreach (var seq in ptable.ListSequencesAsync())
-                    {
-
-                    }
+                    _testOutputHelper.WriteLine($"Sequences:");
+                    var seq = await ptable.ListSequencesAsync().ToListAsync();
+                    _testOutputHelper.WriteLine(JsonSerializer.Serialize(seq, options));
                 }
-                await foreach (var proc in schema.ListProceduresAsync(null))
-                {
 
-                }
-                await foreach (var function in schema.ListFunctionsAsync(null))
-                {
+                _testOutputHelper.WriteLine($"Procedures");
+                var procedures = await schema.ListProceduresAsync(null).ToListAsync();
+                _testOutputHelper.WriteLine(JsonSerializer.Serialize(procedures, options));
 
-                }
-                await foreach (var index in schema.ListIndexesAsync(null))
-                {
+                _testOutputHelper.WriteLine($"Functions");
+                var functions = await schema.ListFunctionsAsync(null).ToListAsync();
+                _testOutputHelper.WriteLine(JsonSerializer.Serialize(functions, options));
 
-                }
-                await foreach (var con in schema.ListConstraintsAsync(null))
-                {
-                }
-                await foreach (var seq in schema.ListSequencesAsync(null))
-                {
+                _testOutputHelper.WriteLine($"Indexes");
+                var indexes = await schema.ListIndexesAsync(null).ToListAsync();
+                _testOutputHelper.WriteLine(JsonSerializer.Serialize(indexes, options));
 
-                }
-                await foreach (var trigger in schema.ListTriggersAsync(null))
-                {
+                _testOutputHelper.WriteLine($"Constraints");
+                var constraints = await schema.ListFunctionsAsync(null).ToListAsync();
+                _testOutputHelper.WriteLine(JsonSerializer.Serialize(constraints, options));
 
-                }
+                _testOutputHelper.WriteLine($"Sequences");
+                var sequences = await schema.ListSequencesAsync(null).ToListAsync();
+                _testOutputHelper.WriteLine(JsonSerializer.Serialize(sequences, options));
+
+                _testOutputHelper.WriteLine($"Triggers");
+                var triggers = await schema.ListTriggersAsync(null).ToListAsync();
+                _testOutputHelper.WriteLine(JsonSerializer.Serialize(triggers, options));
             }
+            _testOutputHelper.WriteLine("-----------");
         }
     }
 }

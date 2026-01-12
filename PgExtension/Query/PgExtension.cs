@@ -4,6 +4,18 @@ namespace PgExtension.Query;
 
 public static class PgExtension
 {
+    public static async Task<List<T>> ToListAsync<T>(
+        this IAsyncEnumerable<T> source,
+        CancellationToken ct = default)
+    {
+        var list = new List<T>();
+        await foreach (var item in source.WithCancellation(ct))
+        {
+            list.Add(item);
+        }
+        return list;
+    }
+
     public static T Create<T>(this NpgsqlDataReader row)
     {
         var obj = ConstructorCache<T>.CreateInstance();
