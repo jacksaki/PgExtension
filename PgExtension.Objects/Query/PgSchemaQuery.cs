@@ -19,10 +19,9 @@ internal class PgSchemaQuery
 
     private static readonly string SQL = @"SELECT
  n.nspname AS schema_name
-,u.rolname AS schema_owner
 FROM
  pg_namespace n
-INNER JOIN pg_authid u ON(n.nspowner = u.oid)
+--INNER JOIN pg_authid u ON(n.nspowner = u.oid)
 --WHERE
 --(pg_has_role(n.nspowner, 'USAGE'::text)
 --OR has_schema_privilege(n.oid, 'CREATE, USAGE'::text))
