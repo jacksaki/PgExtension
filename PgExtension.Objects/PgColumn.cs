@@ -1,5 +1,6 @@
 ﻿using PgExtension.Objects.Query;
 using PgExtension.Query;
+using System.Runtime.InteropServices;
 
 namespace PgExtension.Objects;
 
@@ -12,11 +13,29 @@ public class PgColumn
     }
     private PgCatalog _catalog;
 
+    public string GenerateColumnDDL()
+    {
+        var sb=new System.Text.StringBuilder();
+        sb.Append($"{this.ColumnName}");
+        if(this.ColumnDefault != null)
+        {
+            sb.Append($" DEFAULT {this.ColumnDefault}");
+        }
+        if (this.IsNotNull)
+        {
+            sb.Append(" NOT NULL");
+        }
+        return sb.ToString();
+    }
+
     [DbColumn("table_oid")]
     internal uint TableOid { get; private set; }
 
     [DbColumn("table_schema")]
     public string TableSchema { get; private set; } = string.Empty;
+
+    [DbColumn("need_quote")]
+    public bool NeedQuote { get; private set; } 
 
     [DbColumn("table_name")]
     public string TableName { get; private set; } = string.Empty;

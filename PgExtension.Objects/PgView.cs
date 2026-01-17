@@ -10,6 +10,16 @@ public class PgView : PgRelationBase, IPgObject
     internal PgView(PgCatalog catalog):base(catalog)
     {
     }
+    public async Task<string> GenerateDDLAsync(bool needConstraint, bool needIndex)
+    {
+        var columns = await this.ListColumnsAsync().ToTask();
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"CREATE OR REPLACE VIEW {this.SchemaName}.{this.Name} (");
+        sb.AppendLine(string.Join(",\n", columns.OrderBy(x => x.OrdinalPosition).Select(x => x.ColumnName)).Trim());
+        sb.AppendLine(") AS");
+        sb.AppendLine(this.ViewDefinition);
+        return sb.ToString();
+    }
 
     [DbColumn("oid")]
     public uint Oid

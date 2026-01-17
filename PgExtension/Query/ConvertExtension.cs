@@ -1,7 +1,17 @@
 ﻿namespace PgExtension.Query;
 
-internal static class ConvertExtension
+public static class ConvertExtension
 {
+    public static async Task<IEnumerable<T>> ToTask<T>(this IAsyncEnumerable<T> source)
+    {
+        var list = new List<T>();
+        await foreach (var item in source)
+        {
+            list.Add(item);
+        }
+        return list;
+    }
+
     public static int ToInt32(this object? value)
     {
         return value.ToInt32(default);
