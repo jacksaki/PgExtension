@@ -33,6 +33,30 @@ public class PgIndex
             this.Columns = Array.Empty<PgIndexColumn>().AsReadOnly();
         }
     }
+
+    public string GenerateDDL(bool addSchema)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"CREATE ");
+        if (this.IsUnique)
+        {
+            sb.Append($"UNIQUE ");
+        }
+        sb.Append($"INDEX ");
+        if (addSchema)
+        {
+            sb.Append($"{this.SchemaName}.");
+        }
+        sb.Append($"{this.Name} ON ");
+        if (addSchema)
+        {
+            sb.Append($"{this.TableSchema}.");
+        }
+        sb.Append($"{this.TableName} ON ");
+        sb.Append($"({string.Join(",", this.Columns.Select(x => $"{x.ColumnName} {x.Order}"))})");
+        return sb.ToString();
+    }
+
     [DbColumn("index_oid")]
     public uint Oid { get; private set; }
     [DbColumn("table_oid")]

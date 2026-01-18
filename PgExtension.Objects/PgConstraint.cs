@@ -33,6 +33,20 @@ public class PgConstraint : IPgObject
             this.ColumnNames = Array.Empty<string>().AsReadOnly();
         }
     }
+
+    public string GenerateDDL(bool addSchema)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append("ALTER TABLE ");
+        if (addSchema)
+        {
+            sb.Append($"{this.TableSchema}.");
+        }
+        sb.Append($"{this.TableName} ADD CONSTRAINT ");
+        sb.Append($"{this.Definition};");
+        return sb.ToString();
+    }
+
     [DbColumn("table_oid")]
     public uint TableOid { get; private set; }
     [DbColumn("table_schema")]
