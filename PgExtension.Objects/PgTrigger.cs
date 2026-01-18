@@ -10,6 +10,20 @@ public class PgTrigger : IPgObject
     {
         _catalog = catalog;
     }
+    public string GenerateDDL(DDLOptions options)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"CREATE OR REPLACE TRIGGER ");
+        if (options.AddSchema)
+        {
+            sb.Append($"{this.SchemaName}.");
+        }
+        sb.Append($"{this.Name} ");
+
+
+
+        return sb.ToString();
+    }
     private PgCatalog _catalog;
     [DbColumn("trigger_schema")]
     public string SchemaName { get; private set; } = string.Empty;

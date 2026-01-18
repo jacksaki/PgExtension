@@ -1,6 +1,5 @@
 ﻿using PgExtension.Objects.Query;
 using PgExtension.Query;
-using System.Runtime.InteropServices;
 
 namespace PgExtension.Objects;
 
@@ -15,9 +14,9 @@ public class PgColumn
 
     public string GenerateColumnDDL()
     {
-        var sb=new System.Text.StringBuilder();
+        var sb = new System.Text.StringBuilder();
         sb.Append($"{this.ColumnName}");
-        if(this.ColumnDefault != null)
+        if (this.ColumnDefault != null)
         {
             sb.Append($" DEFAULT {this.ColumnDefault}");
         }
@@ -35,7 +34,7 @@ public class PgColumn
     public string TableSchema { get; private set; } = string.Empty;
 
     [DbColumn("need_quote")]
-    public bool NeedQuote { get; private set; } 
+    public bool NeedQuote { get; private set; }
 
     [DbColumn("table_name")]
     public string TableName { get; private set; } = string.Empty;

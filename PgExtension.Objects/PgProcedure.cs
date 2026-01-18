@@ -6,6 +6,20 @@ namespace PgExtension.Objects;
 public class PgProcedure : IPgObject
 {
     public static SQLSet GetSQLSet() => PgProcedureQuery.GenerateSQLSet();
+    public string GenerateDDL(DDLOptions options)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"CREATE OR REPLACE PROCEDURE ");
+        if (options.AddSchema)
+        {
+            sb.Append($"{this.SchemaName}.");
+        }
+        sb.AppendLine($"{this.Name} ");
+
+        sb.AppendLine($"{this.Definition}");
+        return sb.ToString();
+    }
+
     internal PgProcedure(PgCatalog catalog)
     {
         _catalog = catalog;

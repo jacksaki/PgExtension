@@ -1,12 +1,46 @@
 ﻿using PgExtension.Objects.Query;
 using PgExtension.Query;
-using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects;
 
-public class PgMaterializedView: PgRelationBase
+public class PgMaterializedView : PgRelationBase
 {
     public static SQLSet GetSQLSet() => PgMaterializedViewQuery.GenerateSQLSet();
+
+    public override async Task<string> GenerateDDLAsync(DDLOptions options)
+    {
+        var columns = await this.ListColumnsAsync().ToTask();
+        var sb = new System.Text.StringBuilder();
+        sb.Append("CREATE OR REPLACE MATERIALIZED VIEW ");
+        if (options.AddSchema)
+        {
+            sb.Append($"{this.SchemaName}.");
+        }
+        sb.AppendLine($"{this.Name} (");
+        sb.AppendLine(string.Join(",\n", columns.OrderBy(x => x.OrdinalPosition).Select(x => x.GenerateColumnDDL())).Trim());
+        sb.AppendLine(") AS");
+        sb.AppendLine($"{this.ViewDefinition};");
+
+        if (options.AddConstraints)
+        {
+            await foreach (var constraint in this.ListConstraintsAsync())
+            {
+                sb.AppendLine(constraint.GenerateDDL(options.AddSchema));
+            }
+        }
+        if (options.AddIndexes)
+        {
+            await foreach (var index in this.ListIndexesAsync())
+            {
+                if (!options.AddConstraints || (!index.IsPrimaryKey && !index.IsUnique))
+                {
+                    sb.AppendLine(index.GenerateDDL(options.AddSchema));
+                }
+            }
+        }
+        return sb.ToString();
+    }
+
     internal PgMaterializedView(PgCatalog catalog) : base(catalog)
     {
     }

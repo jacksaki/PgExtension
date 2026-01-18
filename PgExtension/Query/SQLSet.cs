@@ -7,7 +7,7 @@ public class SQLSet(string sql, NpgsqlParameter[]? parameters)
     public string SQL => sql;
     public NpgsqlParameter[]? Parameters => parameters;
     public NpgsqlParameter? this[string name]
-        => this.Parameters?.FirstOrDefault(p => p.ParameterName.Equals(name,StringComparison.OrdinalIgnoreCase));
+        => this.Parameters?.FirstOrDefault(p => p.ParameterName.Equals(name, StringComparison.OrdinalIgnoreCase));
 
     public NpgsqlParameter? this[int index]
     {
@@ -21,7 +21,7 @@ public class SQLSet(string sql, NpgsqlParameter[]? parameters)
             {
                 return null;
             }
-            return this.Parameters[index];  
+            return this.Parameters[index];
         }
     }
 }

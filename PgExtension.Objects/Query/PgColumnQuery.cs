@@ -11,7 +11,7 @@ internal class PgColumnQuery
         {
             new NpgsqlParameter("table_oid", NpgsqlTypes.NpgsqlDbType.Oid)
         });
-        private static readonly string SQL = @"SELECT
+    private static readonly string SQL = @"SELECT
      c.oid AS table_oid
     ,nc.nspname AS table_schema
     ,c.relname AS table_name
@@ -79,7 +79,7 @@ ORDER BY
         var sqlSet = GenerateSQLSet();
         sqlSet["table_oid"]!.Value = tableOid;
         using var q = catalog.CreateQuery();
-        await foreach (var result in q.SelectAsync<PgColumn,PgCatalog>(catalog, sqlSet, ct))
+        await foreach (var result in q.SelectAsync<PgColumn, PgCatalog>(catalog, sqlSet, ct))
         {
             yield return result;
         }

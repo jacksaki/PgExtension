@@ -1,5 +1,4 @@
 ﻿using CommandProcess;
-using System.ComponentModel.DataAnnotations;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text.Json;
@@ -37,7 +36,7 @@ public static class LibraryInstaller
         {
             await InstallEmbeddedPythonAsync(conf.python_url, pythonDir);
             EnableSite(pythonDir);
-           var result = await InstallPipAsync(pythonExe, pythonDir);
+            var result = await InstallPipAsync(pythonExe, pythonDir);
             stdOuts.AddRange(result.StandardOutput);
             stdErrors.AddRange(result.StandardError);
             if (result.ExitCode != 0)
@@ -53,7 +52,7 @@ public static class LibraryInstaller
             stdErrors.AddRange(result.StandardError);
             if (result.ExitCode != 0)
             {
-                return new CommandProcessResult(result.ExitCode, stdOuts,stdErrors);
+                return new CommandProcessResult(result.ExitCode, stdOuts, stdErrors);
             }
         }
 
@@ -105,7 +104,7 @@ public static class LibraryInstaller
         File.WriteAllBytes(
             getPipPath,
             await wc.GetByteArrayAsync("https://bootstrap.pypa.io/get-pip.py"));
-        
+
         return await RunCommandAsync(pythonExe, $"\"{getPipPath}\"");
         File.Delete(getPipPath);
     }

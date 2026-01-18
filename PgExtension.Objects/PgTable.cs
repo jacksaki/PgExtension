@@ -1,6 +1,5 @@
 ﻿using PgExtension.Objects.Query;
 using PgExtension.Query;
-using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects;
 public class DDLOptions
@@ -14,7 +13,7 @@ public sealed class PgTable : PgRelationBase, IPgObject
 {
     public static SQLSet GetSQLSet() => PgTableQuery.GenerateSQLSet();
 
-    public async Task<string>GenerateDDLAsync(DDLOptions options)
+    public override async Task<string> GenerateDDLAsync(DDLOptions options)
     {
         var columns = await this.ListColumnsAsync().ToTask();
         var sb = new System.Text.StringBuilder();
@@ -28,7 +27,8 @@ public sealed class PgTable : PgRelationBase, IPgObject
         sb.AppendLine(");");
         if (options.AddConstraints)
         {
-            await foreach(var constraint in this.ListConstraintsAsync()){
+            await foreach (var constraint in this.ListConstraintsAsync())
+            {
                 sb.AppendLine(constraint.GenerateDDL(options.AddSchema));
             }
         }
@@ -36,10 +36,14 @@ public sealed class PgTable : PgRelationBase, IPgObject
         {
             await foreach (var index in this.ListIndexesAsync())
             {
-                if (!options.AddConstraints || (!index.IsPrimaryKey && !index.IsUnique))
+                if (options.AddConstraints)
                 {
-                    sb.AppendLine(index.GenerateDDL(options.AddSchema));
+                    if (index.IsPrimaryKey || index.IsUnique)
+                    {
+                        continue;
+                    }
                 }
+                sb.AppendLine(index.GenerateDDL(options.AddSchema));
             }
         }
         return sb.ToString();

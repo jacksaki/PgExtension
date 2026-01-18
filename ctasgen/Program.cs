@@ -1,6 +1,4 @@
 ﻿using ConsoleAppFramework;
-using Microsoft.Extensions.Logging;
-using ZLogger;
 
 namespace ctasgen
 {

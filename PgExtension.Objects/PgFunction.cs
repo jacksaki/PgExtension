@@ -6,6 +6,19 @@ namespace PgExtension.Objects;
 public class PgFunction : IPgObject
 {
     public static SQLSet GetSQLSet() => PgFunctionQuery.GenerateSQLSet();
+    public string GenerateDDL(DDLOptions options)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"CREATE OR REPLACE FUNCTION ");
+        if (options.AddSchema)
+        {
+            sb.Append($"{this.SchemaName}.");
+        }
+        sb.AppendLine($"{this.Name} ");
+
+        sb.AppendLine($"{this.Definition}");
+        return sb.ToString();
+    }
 
     internal PgFunction(PgCatalog catalog)
     {

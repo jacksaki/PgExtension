@@ -1,14 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using PgExtension.Objects;
+﻿using PgExtension.Objects;
 using PgExtension.Query;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace PgExtension.Tests
@@ -26,10 +18,10 @@ namespace PgExtension.Tests
         {
             var db = new PgDatabase(System.Environment.GetEnvironmentVariable("connection_string") ?? string.Empty);
             var options = new JsonSerializerOptions() { WriteIndented = true };
-            await foreach(var schema in db.ListSchemaAsync())
+            await foreach (var schema in db.ListSchemaAsync())
             {
                 _testOutputHelper.WriteLine(schema.Name);
-                await foreach(var table in schema.ListTablesAsync(null))
+                await foreach (var table in schema.ListTablesAsync(null))
                 {
                     _testOutputHelper.WriteLine($"Table: {table.SchemaName}.{table.Name}");
                     _testOutputHelper.WriteLine($"Columns:");

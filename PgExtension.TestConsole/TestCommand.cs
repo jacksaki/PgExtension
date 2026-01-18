@@ -1,16 +1,7 @@
 ﻿using ConsoleAppFramework;
-using Kokuban;
-using Microsoft.Extensions.Logging;
 using Npgsql;
 using PgExtension.Objects;
 using PgExtension.Query;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PgExtension.TestConsole
 {
@@ -25,7 +16,7 @@ namespace PgExtension.TestConsole
         /// <param name="schemaName">-s, schema name</param>
         /// <param name="tableOid">-o, table oid(column,index,seq,trigger)</param>
         [Command("")]
-        public async Task ExecuteAsync(string connectionString, string type, string schemaName, uint? tableOid=null)
+        public async Task ExecuteAsync(string connectionString, string type, string schemaName, uint? tableOid = null)
         {
             var sqlSet = GetSQL(type);
             if (tableOid.HasValue && sqlSet.Parameters?.Where(x => x.ParameterName.Contains("oid")).Any() == true)
@@ -58,11 +49,11 @@ namespace PgExtension.TestConsole
                 var t = dr.GetDataTypeName(i);
                 Console.WriteLine($"{fieldName}: {t}");
             }
-            
+
         }
         private static SQLSet GetSQL(string type)
         {
-            switch(type.ToLower())
+            switch (type.ToLower())
             {
                 case "column": return PgColumn.GetSQLSet();
                 case "const": return PgConstraint.GetSQLSet();
@@ -79,7 +70,8 @@ namespace PgExtension.TestConsole
                 case "view": return PgView.GetSQLSet();
                 default:
                     throw new ArgumentException($"{type}: Invalid type");
-            };
+            }
+            ;
         }
     }
 }
