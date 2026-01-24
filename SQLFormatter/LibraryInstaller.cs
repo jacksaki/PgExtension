@@ -105,8 +105,9 @@ public static class LibraryInstaller
             getPipPath,
             await wc.GetByteArrayAsync("https://bootstrap.pypa.io/get-pip.py"));
 
-        return await RunCommandAsync(pythonExe, $"\"{getPipPath}\"");
+        var result = await RunCommandAsync(pythonExe, $"\"{getPipPath}\"");
         File.Delete(getPipPath);
+        return result;
     }
 
 

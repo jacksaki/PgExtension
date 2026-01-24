@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace PgExtension.Objects;
 
 [DbClass(nameof(RefreshColumns))]
-public class PgIndex
+public class PgIndex: IPgObject
 {
     public static SQLSet GetSQLSet() => PgIndexQuery.GenerateSQLSet();
     internal PgIndex(PgCatalog catalog)
@@ -34,27 +34,30 @@ public class PgIndex
         }
     }
 
-    public string GenerateDDL(bool addSchema)
+    public async Task<string> GenerateDDLAsync(DDLOptions options)
     {
-        var sb = new System.Text.StringBuilder();
-        sb.Append($"CREATE ");
-        if (this.IsUnique)
+        return await Task.Run(() =>
         {
-            sb.Append($"UNIQUE ");
-        }
-        sb.Append($"INDEX ");
-        if (addSchema)
-        {
-            sb.Append($"{this.SchemaName}.");
-        }
-        sb.Append($"{this.Name} ON ");
-        if (addSchema)
-        {
-            sb.Append($"{this.TableSchema}.");
-        }
-        sb.Append($"{this.TableName} ON ");
-        sb.Append($"({string.Join(",", this.Columns.Select(x => $"{x.ColumnName} {x.Order}"))})");
-        return sb.ToString();
+            var sb = new System.Text.StringBuilder();
+            sb.Append($"CREATE ");
+            if (this.IsUnique)
+            {
+                sb.Append($"UNIQUE ");
+            }
+            sb.Append($"INDEX ");
+            if (options.AddSchema)
+            {
+                sb.Append($"{this.SchemaName}.");
+            }
+            sb.Append($"{this.Name} ON ");
+            if (options.AddSchema)
+            {
+                sb.Append($"{this.TableSchema}.");
+            }
+            sb.Append($"{this.TableName} ON ");
+            sb.Append($"({string.Join(",", this.Columns.Select(x => $"{x.ColumnName} {x.Order}"))})");
+            return sb.ToString();
+        });
     }
 
     [DbColumn("index_oid")]

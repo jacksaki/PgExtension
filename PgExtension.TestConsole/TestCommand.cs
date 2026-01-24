@@ -7,15 +7,55 @@ namespace PgExtension.TestConsole
 {
     public class TestCommand
     {
+        [Command("ddl")]
+        public async Task ExecuteDDLAsync(string connectionString, string type, string schemaName, string objectName)
+        {
+            var t = GetType(type);
+            var types = typeof(PgTable).Assembly.GetTypes().Where(x => x.IsClass && !x.IsAbstract && typeof(IPgObject).IsAssignableFrom(x));
+            if (!types.Contains(t))
+            {
+                Console.WriteLine($"{type} is not supported.");
+                return;
+            }
+            var catalog = new PgCatalog(connectionString);
+            var obj = await catalog.GetAsync(t, schemaName, objectName);
+            if(obj == null)
+            {
+                Console.WriteLine($"{type} {schemaName}.{objectName} not found.");
+                return;
+            }
+
+            Console.WriteLine(await obj.GenerateDDLAsync(new DDLOptions() { AddConstraints = true, AddIndexes = true, AddSchema = true }));
+        }
+        private Type GetType(string type)
+        {
+            switch (type.ToLower())
+            {
+                case "const": return typeof(PgConstraint);
+                case "ftable": return typeof(PgForeignTable);
+                case "func": return typeof(PgFunction);
+                case "index": return typeof(PgIndex);
+                case "mview": return typeof(PgMaterializedView);
+                case "ptable": return typeof(PgPartitionTable);
+                case "proc": return typeof(PgProcedure);
+                case "schema": return typeof(PgSchema);
+                case "seq": return typeof(PgSequence);
+                case "table": return typeof(PgTable);
+                case "trigger": return typeof(PgTrigger);
+                case "view": return typeof(PgView);
+                default:
+                    throw new ArgumentException($"{type}: Invalid type");
+            }
+        }
 
         /// <summary>
-        /// List
+        /// sql
         /// </summary>
         /// <param name="connectionString">-c, connection string.</param>
         /// <param name="type">-t, [column,const,ftable,func,index,mview,ptable,proc,schema,seq,table,trigger,view]</param>
         /// <param name="schemaName">-s, schema name</param>
         /// <param name="tableOid">-o, table oid(column,index,seq,trigger)</param>
-        [Command("")]
+        [Command("sql")]
         public async Task ExecuteAsync(string connectionString, string type, string schemaName, uint? tableOid = null)
         {
             var sqlSet = GetSQL(type);

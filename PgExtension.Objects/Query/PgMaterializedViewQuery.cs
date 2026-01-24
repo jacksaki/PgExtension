@@ -31,6 +31,17 @@ ORDER BY
  nc.nspname
 ,c.relname";
 
+    internal static async Task<PgMaterializedView?> GetAsync(PgCatalog catalog, string schemaName, string name, CancellationToken ct)
+    {
+        var sqlSet = GenerateSQLSet();
+        sqlSet["mview_schema"]!.Value = schemaName;
+        sqlSet["mview_name"]!.Value = name;
+
+        using var q = catalog.CreateQuery();
+        var result = await q.SelectAsync<PgMaterializedView, PgCatalog>(catalog, sqlSet, ct).ToTask();
+        return result.FirstOrDefault();
+    }
+
     internal static async IAsyncEnumerable<PgMaterializedView> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct)
     {
         var sqlSet = GenerateSQLSet();

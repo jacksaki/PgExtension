@@ -34,17 +34,20 @@ public class PgConstraint : IPgObject
         }
     }
 
-    public string GenerateDDL(bool addSchema)
+    public async Task<string> GenerateDDLAsync(DDLOptions options)
     {
-        var sb = new System.Text.StringBuilder();
-        sb.Append("ALTER TABLE ");
-        if (addSchema)
+        return await Task.Run(() =>
         {
-            sb.Append($"{this.TableSchema}.");
-        }
-        sb.Append($"{this.TableName} ADD CONSTRAINT ");
-        sb.Append($"{this.Definition};");
-        return sb.ToString();
+            var sb = new System.Text.StringBuilder();
+            sb.Append("ALTER TABLE ");
+            if (options.AddSchema)
+            {
+                sb.Append($"{this.TableSchema}.");
+            }
+            sb.Append($"{this.TableName} ADD CONSTRAINT ");
+            sb.Append($"{this.Definition};");
+            return sb.ToString();
+        });
     }
 
     [DbColumn("table_oid")]

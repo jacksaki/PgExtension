@@ -61,6 +61,18 @@ ORDER BY
             yield return trigger;
         }
     }
+    internal static async Task<PgTrigger?> GetAsync(PgCatalog catalog, string schemaName, string name, CancellationToken ct = default)
+    {
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_oid"]!.Value = DBNull.Value;
+        sqlSet["schema_name"]!.Value = schemaName;
+        sqlSet["trigger_name"]!.Value = name;
+
+        using var q = catalog.CreateQuery();
+        var result = await q.SelectAsync<PgTrigger, PgCatalog>(catalog, sqlSet, ct).ToTask();
+        return result.FirstOrDefault();
+    }
+
     internal static async IAsyncEnumerable<PgTrigger> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
     {
         var sqlSet = GenerateSQLSet();

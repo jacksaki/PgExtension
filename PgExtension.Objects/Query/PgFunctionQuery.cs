@@ -54,6 +54,17 @@ ORDER BY
  n.nspname
 ,p.proname";
 
+    internal static async Task<PgFunction?> GetAsync(PgCatalog catalog, string schemaName, string name, CancellationToken ct = default)
+    {
+        var sqlSet = GenerateSQLSet();
+        sqlSet["schema_name"]!.Value = schemaName;
+        sqlSet["func_name"]!.Value = name;
+
+        using var q = catalog.CreateQuery();
+        var result = await q.SelectAsync<PgFunction, PgCatalog>(catalog, sqlSet, ct).ToTask();
+        return result.FirstOrDefault();
+    }
+
     internal static async IAsyncEnumerable<PgFunction> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
     {
         var sqlSet = GenerateSQLSet();

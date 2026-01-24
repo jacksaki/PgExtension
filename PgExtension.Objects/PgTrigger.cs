@@ -10,19 +10,21 @@ public class PgTrigger : IPgObject
     {
         _catalog = catalog;
     }
-    public string GenerateDDL(DDLOptions options)
+    public async Task<string> GenerateDDLAsync(DDLOptions options)
     {
-        var sb = new System.Text.StringBuilder();
-        sb.Append($"CREATE OR REPLACE TRIGGER ");
-        if (options.AddSchema)
+        return await Task.Run(() =>
         {
-            sb.Append($"{this.SchemaName}.");
-        }
-        sb.Append($"{this.Name} ");
-
-
-
-        return sb.ToString();
+            var sb = new System.Text.StringBuilder();
+            sb.Append($"CREATE OR REPLACE TRIGGER ");
+            if (options.AddSchema)
+            {
+                sb.Append($"{this.SchemaName}.");
+            }
+            sb.Append($"{this.Name} ");
+            //
+            //
+            return sb.ToString();
+        });
     }
     private PgCatalog _catalog;
     [DbColumn("trigger_schema")]

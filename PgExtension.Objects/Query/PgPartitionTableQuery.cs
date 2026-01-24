@@ -59,4 +59,14 @@ ORDER BY
             yield return table;
         }
     }
+    internal static async Task<PgPartitionTable?> GetAsync(PgCatalog catalog, string schemaName, string name, CancellationToken ct)
+    {
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_schema"]!.Value = schemaName;
+        sqlSet["table_name"]!.Value = name;
+
+        using var q = catalog.CreateQuery();
+        var result = await q.SelectAsync<PgPartitionTable, PgCatalog>(catalog, sqlSet, ct).ToTask();
+        return result.FirstOrDefault();
+    }
 }

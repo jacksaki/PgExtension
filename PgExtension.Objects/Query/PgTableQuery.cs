@@ -26,6 +26,17 @@ c.relkind = 'r'
 --AND NOT pg_is_other_temp_schema(nc.oid)
 AND nc.nspname = @table_schema
 AND (@table_name IS NULL OR c.relname ILIKE @table_name::text)";
+    internal static async Task<PgTable?> GetAsync(PgCatalog catalog, string schemaName, string name, CancellationToken ct)
+    {
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_schema"]!.Value = schemaName;
+        sqlSet["table_name"]!.Value = name;
+
+        using var q = catalog.CreateQuery();
+        var result = await q.SelectAsync<PgTable, PgCatalog>(catalog, sqlSet, ct).ToTask();
+        return result.FirstOrDefault();
+    }
+
     internal static async IAsyncEnumerable<PgTable> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct)
     {
         var sqlSet = GenerateSQLSet();

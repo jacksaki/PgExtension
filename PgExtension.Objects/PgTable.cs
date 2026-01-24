@@ -15,6 +15,8 @@ public sealed class PgTable : PgRelationBase, IPgObject
 
     public override async Task<string> GenerateDDLAsync(DDLOptions options)
     {
+        var sequences = await this.ListSequencesAsync().ToTask();
+        var seqColumns = sequences?.Select(x => x.OwnedColumn).Where(x => x != null).ToArray() ?? Array.Empty<string>();
         var columns = await this.ListColumnsAsync().ToTask();
         var sb = new System.Text.StringBuilder();
         sb.Append("CREATE TABLE ");
@@ -23,13 +25,13 @@ public sealed class PgTable : PgRelationBase, IPgObject
             sb.Append($"{this.SchemaName}.");
         }
         sb.AppendLine($"{this.Name} (");
-        sb.AppendLine(string.Join(",\n", columns.OrderBy(x => x.OrdinalPosition).Select(x => x.GenerateColumnDDL())).Trim());
+        sb.AppendLine(string.Join(",\n", columns.OrderBy(x => x.OrdinalPosition).Select(x => x.GenerateColumnDDL(seqColumns))).Trim());
         sb.AppendLine(");");
         if (options.AddConstraints)
         {
             await foreach (var constraint in this.ListConstraintsAsync())
             {
-                sb.AppendLine(constraint.GenerateDDL(options.AddSchema));
+                sb.AppendLine(await constraint.GenerateDDLAsync(options));
             }
         }
         if (options.AddIndexes)
@@ -43,7 +45,7 @@ public sealed class PgTable : PgRelationBase, IPgObject
                         continue;
                     }
                 }
-                sb.AppendLine(index.GenerateDDL(options.AddSchema));
+                sb.AppendLine(await index.GenerateDDLAsync(options));
             }
         }
         return sb.ToString();

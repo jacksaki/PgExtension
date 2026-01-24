@@ -7,54 +7,57 @@ public class PgSequence : IPgObject
 {
     public static SQLSet GetSQLSet() => PgSequenceQuery.GenerateSQLSet();
 
-    public string GenerateDDL(DDLOptions options)
+    public async Task<string> GenerateDDLAsync(DDLOptions options)
     {
-        var sb = new System.Text.StringBuilder();
-        sb.Append($"CREATE SEQUENCE ");
-        if (options.AddSchema)
+        return await Task.Run(() =>
         {
-            sb.Append($"{this.SchemaName}.");
-        }
-        sb.AppendLine($"{this.Name} ");
-        sb.AppendLine($"INCREMENT BY {this.IncrementBy}");
-        if (this.MinValue.HasValue)
-        {
-            sb.AppendLine($"NO MINVALUE");
-        }
-        else
-        {
-            sb.AppendLine($"MINVALUE {this.MinValue}");
-        }
-        if (this.MaxValue.HasValue)
-        {
-            sb.AppendLine($"NO MAXVALUE");
-        }
-        else
-        {
-            sb.AppendLine($"MAXVALUE {this.MaxValue}");
-        }
-        sb.AppendLine($"START WITH {this.StartValue}");
-        sb.AppendLine($"START WITH {this.StartValue}");
-        sb.AppendLine($"CACHE {this.CacheSize}");
-        if (!this.IsCycled)
-        {
-            sb.Append($"NO ");
-        }
-        sb.AppendLine($"CYCLE");
-        sb.Append($"OWNED BY ");
-        if (this.OwnedTableName != null)
-        {
+            var sb = new System.Text.StringBuilder();
+            sb.Append($"CREATE SEQUENCE ");
             if (options.AddSchema)
             {
-                sb.Append($"{this.OwnedTableSchema}.");
+                sb.Append($"{this.SchemaName}.");
             }
-            sb.AppendLine($"{this.OwnedTableName}.{this.OwnedColumn}");
-        }
-        else
-        {
-            sb.AppendLine($"OWNED BY NONE");
-        }
-        return sb.ToString();
+            sb.AppendLine($"{this.Name} ");
+            sb.AppendLine($"INCREMENT BY {this.IncrementBy}");
+            if (this.MinValue.HasValue)
+            {
+                sb.AppendLine($"NO MINVALUE");
+            }
+            else
+            {
+                sb.AppendLine($"MINVALUE {this.MinValue}");
+            }
+            if (this.MaxValue.HasValue)
+            {
+                sb.AppendLine($"NO MAXVALUE");
+            }
+            else
+            {
+                sb.AppendLine($"MAXVALUE {this.MaxValue}");
+            }
+            sb.AppendLine($"START WITH {this.StartValue}");
+            sb.AppendLine($"START WITH {this.StartValue}");
+            sb.AppendLine($"CACHE {this.CacheSize}");
+            if (!this.IsCycled)
+            {
+                sb.Append($"NO ");
+            }
+            sb.AppendLine($"CYCLE");
+            sb.Append($"OWNED BY ");
+            if (this.OwnedTableName != null)
+            {
+                if (options.AddSchema)
+                {
+                    sb.Append($"{this.OwnedTableSchema}.");
+                }
+                sb.AppendLine($"{this.OwnedTableName}.{this.OwnedColumn}");
+            }
+            else
+            {
+                sb.AppendLine($"OWNED BY NONE");
+            }
+            return sb.ToString();
+        });
     }
 
 

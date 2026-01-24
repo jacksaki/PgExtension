@@ -3,7 +3,7 @@ using PgExtension.Query;
 
 namespace PgExtension.Objects;
 
-public class PgMaterializedView : PgRelationBase
+public class PgMaterializedView : PgRelationBase,IPgObject
 {
     public static SQLSet GetSQLSet() => PgMaterializedViewQuery.GenerateSQLSet();
 
@@ -25,7 +25,7 @@ public class PgMaterializedView : PgRelationBase
         {
             await foreach (var constraint in this.ListConstraintsAsync())
             {
-                sb.AppendLine(constraint.GenerateDDL(options.AddSchema));
+                sb.AppendLine(await constraint.GenerateDDLAsync(options));
             }
         }
         if (options.AddIndexes)
@@ -34,7 +34,7 @@ public class PgMaterializedView : PgRelationBase
             {
                 if (!options.AddConstraints || (!index.IsPrimaryKey && !index.IsUnique))
                 {
-                    sb.AppendLine(index.GenerateDDL(options.AddSchema));
+                    sb.AppendLine(await index.GenerateDDLAsync(options));
                 }
             }
         }

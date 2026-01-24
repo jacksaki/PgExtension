@@ -28,7 +28,7 @@ public class PgForeignTable : PgRelationBase, IPgObject
         {
             await foreach (var constraint in this.ListConstraintsAsync())
             {
-                sb.AppendLine(constraint.GenerateDDL(options.AddSchema));
+                sb.AppendLine(await constraint.GenerateDDLAsync(options));
             }
         }
         if (options.AddIndexes)
@@ -37,8 +37,7 @@ public class PgForeignTable : PgRelationBase, IPgObject
             {
                 if (!options.AddConstraints || (!index.IsPrimaryKey && !index.IsUnique))
                 {
-                    sb.AppendLine(index.GenerateDDL(options.AddSchema));
-                }
+                    sb.AppendLine(await index.GenerateDDLAsync(options));                }
             }
         }
         return sb.ToString();

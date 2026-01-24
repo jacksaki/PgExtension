@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace PgExtension.Objects;
 
 [DbClass(nameof(RefreshItems))]
-public class PgPartitionTable : PgRelationBase
+public class PgPartitionTable : PgRelationBase,IPgObject
 {
     public static SQLSet GetSQLSet() => PgPartitionTableQuery.GenerateSQLSet();
     internal PgPartitionTable(PgCatalog catalog) : base(catalog)
@@ -41,6 +41,8 @@ public class PgPartitionTable : PgRelationBase
 
     public override async Task<string> GenerateDDLAsync(DDLOptions options)
     {
+        var sequences = await this.ListSequencesAsync().ToTask();
+        var seqColumns = sequences.Select(x => x.OwnedColumn).Where(x => x != null).ToArray() ?? Array.Empty<string?>();
         var columns = await this.ListColumnsAsync().ToTask();
         var sb = new System.Text.StringBuilder();
         sb.Append("CREATE TABLE ");
@@ -49,7 +51,7 @@ public class PgPartitionTable : PgRelationBase
             sb.Append($"{this.SchemaName}.");
         }
         sb.AppendLine($"{this.Name} (");
-        sb.AppendLine(string.Join(",\n", columns.OrderBy(x => x.OrdinalPosition).Select(x => x.GenerateColumnDDL())).Trim());
+        sb.AppendLine(string.Join(",\n", columns.OrderBy(x => x.OrdinalPosition).Select(x => x.GenerateColumnDDL(seqColumns))).Trim());
         sb.AppendLine(")");
         sb.AppendLine($"PARTITION BY {this.PartitionKey};");
 
@@ -58,7 +60,7 @@ public class PgPartitionTable : PgRelationBase
         {
             await foreach (var constraint in this.ListConstraintsAsync())
             {
-                sb.AppendLine(constraint.GenerateDDL(options.AddSchema));
+                sb.AppendLine(await constraint.GenerateDDLAsync(options));
             }
         }
         if (options.AddIndexes)
@@ -67,7 +69,7 @@ public class PgPartitionTable : PgRelationBase
             {
                 if (!options.AddConstraints || (!index.IsPrimaryKey && !index.IsUnique))
                 {
-                    sb.AppendLine(index.GenerateDDL(options.AddSchema));
+                    sb.AppendLine(await index.GenerateDDLAsync(options));
                 }
             }
         }

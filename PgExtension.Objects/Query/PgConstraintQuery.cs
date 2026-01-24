@@ -74,6 +74,19 @@ ORDER BY
             yield return con;
         }
     }
+
+    internal static async Task<PgConstraint?> GetAsync(PgCatalog catalog, string schemaName, string name, CancellationToken ct = default)
+    {
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_oid"]!.Value = DBNull.Value;
+        sqlSet["schema_name"]!.Value = schemaName;
+        sqlSet["constraint_name"]!.Value = name;
+
+        using var q = catalog.CreateQuery();
+        var result = await q.SelectAsync<PgConstraint, PgCatalog>(catalog, sqlSet, ct).ToTask();
+        return result.FirstOrDefault();
+    }
+
     internal static async IAsyncEnumerable<PgConstraint> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
     {
         var sqlSet = GenerateSQLSet();

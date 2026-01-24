@@ -12,11 +12,39 @@ public class PgColumn
     }
     private PgCatalog _catalog;
 
-    public string GenerateColumnDDL()
+    private string GetDataType(string?[]? ownedColumn)
+    {
+        if (this.CharacterMaximumLength.HasValue)
+        {
+            return $"{this.DataType}({this.CharacterMaximumLength})";
+        }
+        else if (this.DataType.Equals("numeric"))
+        {
+            if (this.NumericPrecision.HasValue && this.NumericScale.HasValue)
+            {
+                return $"{this.DataType}({this.NumericPrecision},{this.NumericScale})";
+            }
+            else if (this.NumericPrecision.HasValue)
+            {
+                return $"{this.DataType}({this.NumericPrecision})";
+            }
+            else
+            {
+                return this.DataType;
+            }
+        }
+        else
+        {
+            return this.DataType;
+        }
+    }
+    public string GenerateColumnDDL(string?[]? ownedColumn=null)
     {
         var sb = new System.Text.StringBuilder();
         sb.Append($"{this.ColumnName}");
-        if (this.ColumnDefault != null)
+        sb.Append($" {this.GetDataType(ownedColumn)}");
+
+        if (!this.DataType.Contains("serial") && this.ColumnDefault != null)
         {
             sb.Append($" DEFAULT {this.ColumnDefault}");
         }

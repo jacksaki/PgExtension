@@ -68,6 +68,18 @@ ORDER BY
             yield return ind;
         }
     }
+    internal static async Task<PgIndex?> GetAsync(PgCatalog catalog, string schemaName, string name, CancellationToken ct = default)
+    {
+        var sqlSet = GenerateSQLSet();
+        sqlSet["table_oid"]!.Value = DBNull.Value;
+        sqlSet["schema_name"]!.Value = schemaName;
+        sqlSet["index_name"]!.Value = name;
+
+        using var q = catalog.CreateQuery();
+        var result = await q.SelectAsync<PgIndex, PgCatalog>(catalog, sqlSet, ct).ToTask();
+        return result.FirstOrDefault();
+    }
+
     internal static async IAsyncEnumerable<PgIndex> ListAsync(PgCatalog catalog, string schemaName, string? nameLike, [EnumeratorCancellation] CancellationToken ct = default)
     {
         var sqlSet = GenerateSQLSet();
