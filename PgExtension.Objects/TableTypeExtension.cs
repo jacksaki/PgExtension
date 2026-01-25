@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using ZLinq;
 
 namespace PgExtension.Objects;
 
@@ -11,7 +12,7 @@ internal static class TableTypeExtension
 
         var type = typeof(TableTypes);
 
-        return Enum.GetValues<TableTypes>()
+        return Enum.GetValues<TableTypes>().AsValueEnumerable<TableTypes>()
             .Where(flag => flag != 0 && t.HasFlag(flag))
             .Select(flag =>
             {

@@ -38,7 +38,7 @@ public class PgColumn
             return this.DataType;
         }
     }
-    public string GenerateColumnDDL(string?[]? ownedColumn = null)
+    public string GenerateColumnDDL()
     {
         var sb = new System.Text.StringBuilder();
         sb.Append($"{this.ColumnName}");

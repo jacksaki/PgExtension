@@ -1,6 +1,6 @@
 ﻿using PgExtension.Objects.Query;
 using PgExtension.Query;
-
+using ZLinq;
 namespace PgExtension.Objects;
 public class DDLOptions
 {
@@ -15,8 +15,6 @@ public sealed class PgTable : PgRelationBase, IPgObject
 
     public override async Task<string> GenerateDDLAsync(DDLOptions options)
     {
-        var sequences = await this.ListSequencesAsync().ToTask();
-        var seqColumns = sequences?.Select(x => x.OwnedColumn).Where(x => x != null).ToArray() ?? Array.Empty<string>();
         var columns = await this.ListColumnsAsync().ToTask();
         var sb = new System.Text.StringBuilder();
         sb.Append("CREATE TABLE ");
@@ -25,7 +23,7 @@ public sealed class PgTable : PgRelationBase, IPgObject
             sb.Append($"{this.SchemaName}.");
         }
         sb.AppendLine($"{this.Name} (");
-        sb.AppendLine(string.Join(",\n", columns.OrderBy(x => x.OrdinalPosition).Select(x => x.GenerateColumnDDL(seqColumns))).Trim());
+        sb.AppendLine(string.Join(",\n", columns.OrderBy(x => x.OrdinalPosition).Select(x => x.GenerateColumnDDL())).Trim());
         sb.AppendLine(");");
         if (options.AddConstraints)
         {
