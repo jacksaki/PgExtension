@@ -1,5 +1,4 @@
 ﻿using PgExtension.Objects.Query;
-using PgExtension.Query;
 using System.Runtime.CompilerServices;
 
 namespace PgExtension.Objects;
@@ -38,7 +37,7 @@ public sealed class PgCatalog
     }
     public async Task<IPgObject?> GetAsync(Type t, string schemaName, string name, CancellationToken ct = default)
     {
-        if(t == typeof(PgConstraint))
+        if (t == typeof(PgConstraint))
         {
             return await this.GetConstraintAsync(schemaName, name, ct);
         }

@@ -25,6 +25,7 @@ internal class PgColumnQuery
       WHEN seq.seqrelid IS NOT NULL AND a.attidentity = '' AND format_type(a.atttypid, NULL) = 'integer' THEN 'serial'
       WHEN seq.seqrelid IS NOT NULL AND a.attidentity = '' AND format_type(a.atttypid, NULL) = 'bigint' THEN 'bigserial'
       WHEN seq.seqrelid IS NOT NULL AND a.attidentity = '' AND format_type(a.atttypid, NULL) = 'smallint' THEN 'smallserial'
+      WHEN a.attgenerated = '' AND pg_get_expr(ad.adbin, ad.adrelid) ~'nextval\(''\w+''::regclass\)' THEN 'serial'
       ELSE COALESCE(type_map.dst, dt.raw_data_type) END AS data_type
 ,information_schema._pg_char_max_length(information_schema._pg_truetypid(a.*, t.*), information_schema._pg_truetypmod(a.*, t.*)) AS character_maximum_length
 ,information_schema._pg_numeric_precision(information_schema._pg_truetypid(a.*, t.*), information_schema._pg_truetypmod(a.*, t.*)) AS numeric_precision

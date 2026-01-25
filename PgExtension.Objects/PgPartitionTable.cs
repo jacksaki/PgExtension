@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace PgExtension.Objects;
 
 [DbClass(nameof(RefreshItems))]
-public class PgPartitionTable : PgRelationBase,IPgObject
+public class PgPartitionTable : PgRelationBase, IPgObject
 {
     public static SQLSet GetSQLSet() => PgPartitionTableQuery.GenerateSQLSet();
     internal PgPartitionTable(PgCatalog catalog) : base(catalog)

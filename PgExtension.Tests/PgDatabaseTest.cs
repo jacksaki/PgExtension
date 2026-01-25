@@ -16,14 +16,22 @@ namespace PgExtension.Tests
         [Fact]
         public async Task TestAsync()
         {
-            var db = new PgDatabase(System.Environment.GetEnvironmentVariable("connection_string") ?? string.Empty);
+            var conf = ConnectionConfig.Load(System.Environment.GetEnvironmentVariable("connection_config")!);
+            await using var conn = new ConnectionContext(conf);
+            await conn.ConnectAsync();
+            var db = new PgDatabase(conn.GetConnectionString());
             var options = new JsonSerializerOptions() { WriteIndented = true };
             await foreach (var schema in db.ListSchemaAsync())
             {
                 _testOutputHelper.WriteLine(schema.Name);
+                if (!schema.Name.Equals("public"))
+                {
+                    continue;
+                }
                 await foreach (var table in schema.ListTablesAsync(null))
                 {
                     _testOutputHelper.WriteLine($"Table: {table.SchemaName}.{table.Name}");
+                    _testOutputHelper.WriteLine(await table.GenerateDDLAsync(new DDLOptions() { AddConstraints = false, AddIndexes = false, AddSchema = false }));
                     _testOutputHelper.WriteLine($"Columns:");
                     var columns = await table.ListColumnsAsync().ToListAsync();
                     _testOutputHelper.WriteLine(JsonSerializer.Serialize(columns, options));

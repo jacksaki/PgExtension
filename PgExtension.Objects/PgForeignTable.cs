@@ -37,7 +37,8 @@ public class PgForeignTable : PgRelationBase, IPgObject
             {
                 if (!options.AddConstraints || (!index.IsPrimaryKey && !index.IsUnique))
                 {
-                    sb.AppendLine(await index.GenerateDDLAsync(options));                }
+                    sb.AppendLine(await index.GenerateDDLAsync(options));
+                }
             }
         }
         return sb.ToString();

@@ -3,7 +3,7 @@ using PgExtension.Query;
 
 namespace PgExtension.Objects;
 
-public class PgMaterializedView : PgRelationBase,IPgObject
+public class PgMaterializedView : PgRelationBase, IPgObject
 {
     public static SQLSet GetSQLSet() => PgMaterializedViewQuery.GenerateSQLSet();
 

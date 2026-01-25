@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace PgExtension.Objects;
 
 [DbClass(nameof(RefreshColumns))]
-public class PgIndex: IPgObject
+public class PgIndex : IPgObject
 {
     public static SQLSet GetSQLSet() => PgIndexQuery.GenerateSQLSet();
     internal PgIndex(PgCatalog catalog)

@@ -12,7 +12,7 @@ public class PgColumn
     }
     private PgCatalog _catalog;
 
-    private string GetDataType(string?[]? ownedColumn)
+    private string GetDataType()
     {
         if (this.CharacterMaximumLength.HasValue)
         {
@@ -38,13 +38,13 @@ public class PgColumn
             return this.DataType;
         }
     }
-    public string GenerateColumnDDL(string?[]? ownedColumn=null)
+    public string GenerateColumnDDL(string?[]? ownedColumn = null)
     {
         var sb = new System.Text.StringBuilder();
         sb.Append($"{this.ColumnName}");
-        sb.Append($" {this.GetDataType(ownedColumn)}");
+        sb.Append($" {this.GetDataType()}");
 
-        if (!this.DataType.Contains("serial") && this.ColumnDefault != null)
+        if (!this.DataType.Contains("serial") && !this.DataType.Contains("AS IDENTITY") && this.ColumnDefault != null)
         {
             sb.Append($" DEFAULT {this.ColumnDefault}");
         }

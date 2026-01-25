@@ -19,7 +19,7 @@ namespace PgExtension.TestConsole
             }
             var catalog = new PgCatalog(connectionString);
             var obj = await catalog.GetAsync(t, schemaName, objectName);
-            if(obj == null)
+            if (obj == null)
             {
                 Console.WriteLine($"{type} {schemaName}.{objectName} not found.");
                 return;

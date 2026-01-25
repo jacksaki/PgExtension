@@ -45,7 +45,7 @@ AND (@schema_name IS NULL OR ns.nspname = @schema_name::text)
 AND (@sequence_name IS NULL OR seq.relname ILIKE @sequence_name::text)
 ORDER BY
  sequence_schema
-,sequence_name;";
+,sequence_name";
 
     internal static async IAsyncEnumerable<PgSequence> ListAsync(PgCatalog catalog, uint tableOid, [EnumeratorCancellation] CancellationToken ct = default)
     {
