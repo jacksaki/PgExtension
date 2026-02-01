@@ -36,5 +36,6 @@ public class SQLParentBoxViewModel:BoxViewModelBase
             this.SQL.Remove(this.SelectedSQL.Value);
             RaisePropertyChanged(nameof(SQL));
         });
+        this.AddCommand.Execute(Unit.Default);
     }
 }

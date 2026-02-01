@@ -1,5 +1,6 @@
 ﻿using MahApps.Metro.Controls.Dialogs;
 using ObservableCollections;
+using PgExtension.GUI.Models;
 using R3;
 using SQLFormatter;
 using System;
@@ -23,6 +24,8 @@ public class InstallPythonWindowViewModel:ViewModelBase
 
     public BindableReactiveProperty<string> Title { get; }
     public ICollectionView LogsView { get; }
+    public BindableReactiveProperty<bool> NeverShowAgain { get; }
+    public ReactiveCommand CloseCommand { get; }
     public LibraryInstaller Installer { get; }
     public ObservableCollection<string> Logs { get; }
     public InstallPythonWindowViewModel() : base()
@@ -42,6 +45,14 @@ public class InstallPythonWindowViewModel:ViewModelBase
         this.DialogCoordinator = MahApps.Metro.Controls.Dialogs.DialogCoordinator.Instance;
         this.Title = new BindableReactiveProperty<string>();
         this.LogsView = CollectionViewSource.GetDefaultView(this.Logs);
+        this.NeverShowAgain = new BindableReactiveProperty<bool>();
+        this.NeverShowAgain.Subscribe(x =>
+        {
+            var conf = App.GetService<AppConfig>()!;
+            conf.SqlFluffConfig.NeverShowAgain = x;
+            conf.Save();
+        });
+        this.CloseCommand = new ReactiveCommand();
     }
 
     public async Task InstallAsync()
@@ -49,8 +60,8 @@ public class InstallPythonWindowViewModel:ViewModelBase
         try
         {
             this.Installer.Title.Subscribe(x => this.Title.Value = x);
-
             await this.Installer.InstallAsync();
+            
         }
         catch (Exception ex)
         {

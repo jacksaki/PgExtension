@@ -12,7 +12,9 @@ namespace PgExtension.GUI.Models
         [JsonPropertyName("theme")]
         [JsonInclude]
         public ThemeConfig? Theme { get; private set; }
-
+        [JsonPropertyName("sqlfluff")]
+        [JsonInclude]
+        public SqlFluffConfig SqlFluffConfig { get; private set; } = new SqlFluffConfig();
         public void SetTheme(ThemeConfig conf)
         {
             this.Theme = conf;

@@ -16,6 +16,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <ToolBar>
             <Button
@@ -27,18 +29,37 @@
                 Content="{wpf:PackIcon Kind=FormatKerning}"
                 Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" />
         </ToolBar>
-        <Border
-            Grid.Row="1"
-            Margin="3"
-            BorderBrush="Black"
-            BorderThickness="1">
+        <Grid Grid.Row="1" Cursor="">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
             <avalon:TextEditor
                 Margin="4"
                 Document="{Binding SQLDocument}"
                 FontFamily="BIZ UDGothic"
                 FontSize="22"
                 ShowLineNumbers="True"
-                SyntaxHighlighting="TSQL" />
-        </Border>
+                SyntaxHighlighting="TSQL"
+                VerticalScrollBarVisibility="Auto" />
+            <GridSplitter
+                Grid.Column="1"
+                Width="5"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch" />
+            <ListBox
+                Grid.Column="2"
+                ItemsSource="{Binding LogsView}" DisplayMemberPath="FormattedMessage"/>
+        </Grid>
+        <GridSplitter
+            Grid.Row="2"
+            Height="5"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch" />
+        <Grid Grid.Row="3">
+            <DataGrid AutoGenerateColumns="True" ItemsSource="{Binding Results}">
+            </DataGrid>
+        </Grid>
     </Grid>
 </UserControl>

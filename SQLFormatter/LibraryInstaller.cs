@@ -39,7 +39,7 @@ public class LibraryInstaller
         {
             await foreach (var item in stdOut)
             {
-                Logged(this,new LoggItem(InstallLogItemType.Output,item));
+                Logged(this,new LogItem(InstallLogItemType.Output,item));
             }
         });
 
@@ -48,7 +48,7 @@ public class LibraryInstaller
         {
             await foreach (var item in stdError)
             {
-                Logged(this, new LoggItem(InstallLogItemType.Error, item));
+                Logged(this, new LogItem(InstallLogItemType.Error, item));
                 errorBuffered.Add(item);
             }
         });
@@ -62,7 +62,7 @@ public class LibraryInstaller
         }
     }
 
-    public delegate void LoggedEventHandler(object sender, LoggItem e);
+    public delegate void LoggedEventHandler(object sender, LogItem e);
     public event LoggedEventHandler Logged = delegate { };
 
     public async Task InstallAsync()

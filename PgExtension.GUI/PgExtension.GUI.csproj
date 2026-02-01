@@ -39,7 +39,7 @@
 
   <ItemGroup>
     <None Update="PgExtension.GUI.conf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 </Project>

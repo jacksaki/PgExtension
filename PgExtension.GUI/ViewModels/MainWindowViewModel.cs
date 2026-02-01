@@ -49,6 +49,11 @@ namespace PgExtension.GUI.ViewModels
             {
                 Owner = App.GetService<MainWindow>(),
             };
+            var conf = App.GetService<AppConfig>()!;
+            if (conf.SqlFluffConfig.NeverShowAgain)
+            {
+                return;
+            }
             var vm = new InstallPythonWindowViewModel();
             window.DataContext = vm;
             window.Show();

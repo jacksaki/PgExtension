@@ -1,70 +1,60 @@
 ﻿using Cysharp.Diagnostics;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace SQLFormatter;
 
 public class SQLFluffFormatter
 {
+    public delegate void LoggedEventHandler(object sender, LogItem e);
+    public event LoggedEventHandler Logged = delegate { };
     public async Task ExecuteAsync(string sql)
     {
         var confPath = System.IO.Path.ChangeExtension(System.Reflection.Assembly.GetExecutingAssembly().Location, ".conf");
         var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
         var conf = JsonSerializer.Deserialize<Config>(File.ReadAllText(confPath))!;
-
         var pythonDir = Path.Combine(baseDir, conf.PythonDir);
-        var sqlfluffExe = Path.Combine(pythonDir, "Scripts", "sqlfluff.exe");
-
-        await RunCommandAsync(sqlfluffExe, sql);
-
-    }
-    public delegate void LoggedEventHandler(object sender, LoggItem e);
-    public event LoggedEventHandler Logged = delegate { };
-    private async Task RunCommandAsync(string filePath, string sql)
-    {
-        var startInfo = new ProcessStartInfo
+        var sqlfluffDir = Path.Combine(pythonDir, "Scripts");
+        var sqlfluffExe = Path.Combine(sqlfluffDir, "sqlfluff.exe");
+        var psi = new ProcessStartInfo
         {
-            FileName = "sqlfluff",
-            // "fix" または "lint" を指定。 "-" が標準入力を意味する
-            // --dialect postgres を忘れずに（設定ファイルがない場合）
-            Arguments = "fix - --dialect postgres",
+            FileName = sqlfluffExe,
+            WorkingDirectory = sqlfluffDir,
+            Arguments = conf.Arguments,
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true
         };
+        var (_, stdOut, stdError) = ExtendedProcessX.GetDualAsyncEnumerable(psi,sql);
 
-        using (var process = new Process { StartInfo = startInfo })
+        var consumeStdOut = Task.Run(async () =>
         {
-            process.Start();
-
-            // 標準入力へSQLを書き込む
-            using (var writer = process.StandardInput)
+            await foreach (var item in stdOut)
             {
-                writer.Write(sql);
+                Logged(this, new LogItem(InstallLogItemType.Output, item));
             }
+        });
 
-            // 結果（修正済みSQLなど）を読み取る
-            string result = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-
-            process.WaitForExit();
-
-            Console.WriteLine("--- Result ---");
-            Logged(this, new LoggItem(InstallLogItemType.Output, result));
-
-            if (!string.IsNullOrEmpty(error))
+        var errorBuffered = new List<string>();
+        var consumeStdError = Task.Run(async () =>
+        {
+            await foreach (var item in stdError)
             {
-                Console.WriteLine("--- Error/Log ---");
-                Logged(this, new LoggItem(InstallLogItemType.Error, error));
+                Logged(this, new LogItem(InstallLogItemType.Error, item));
+                errorBuffered.Add(item);
             }
+        });
+        try
+        {
+            await Task.WhenAll(consumeStdOut, consumeStdError);
         }
+        catch (ProcessErrorException ex)
+        {
+            throw new Exception(ex.ExitCode.ToString());
+        }
+
     }
 }

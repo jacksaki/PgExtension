@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLFormatter", "SQLFormatte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PgExtension.GUI", "PgExtension.GUI\PgExtension.GUI.csproj", "{2F7B3ED5-0599-4586-9EE1-31BF0C222CCE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLFormatterCmd", "SQLFormatterCmd\SQLFormatterCmd.csproj", "{DA1A01AB-313E-46FB-8106-CF4191A0BB8C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{2F7B3ED5-0599-4586-9EE1-31BF0C222CCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F7B3ED5-0599-4586-9EE1-31BF0C222CCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F7B3ED5-0599-4586-9EE1-31BF0C222CCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA1A01AB-313E-46FB-8106-CF4191A0BB8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA1A01AB-313E-46FB-8106-CF4191A0BB8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA1A01AB-313E-46FB-8106-CF4191A0BB8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA1A01AB-313E-46FB-8106-CF4191A0BB8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

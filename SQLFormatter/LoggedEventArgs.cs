@@ -11,9 +11,10 @@ public enum InstallLogItemType
     Output,
     Error,
 }
-public class LoggItem
+public class LogItem
 {
-    public LoggItem(InstallLogItemType type, string message)
+    public string FormattedMessage => $"{this.Date:HH:mm:ss}\t{this.Type}\t{this.Message}";
+    public LogItem(InstallLogItemType type, string message)
     {
         this.Date = DateTime.Now;
         this.Message = message;

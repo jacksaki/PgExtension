@@ -30,6 +30,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <TextBlock FontSize="18" Text="{Binding Title.Value, Mode=OneWay}" />
         <Border
@@ -38,5 +39,14 @@
             BorderThickness="1">
             <ListBox Margin="4" ItemsSource="{Binding LogsView}" />
         </Border>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <CheckBox Grid.Column="1" Content="次回より表示しない" IsChecked="{Binding NeverShowAgain.Value,Mode=TwoWay}"/>
+            <!--<Button Width="100" Margin="4" Grid.Column="2" Command="{Binding CloseCommand}" Content="{wpf:PackIcon Kind=WindowClose}" Style="{StaticResource MaterialDesignRaisedLightButton}"/>-->
+        </Grid>
     </Grid>
 </mahApps:MetroWindow>

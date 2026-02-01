@@ -18,5 +18,8 @@ namespace SQLFormatter
         [JsonPropertyName("sqlfluff_version")]
         [JsonInclude]
         public string SqlfluffVersion { get; private set; }
+        [JsonPropertyName("arguments")]
+        [JsonInclude]
+        public string Arguments { get; private set; }
     }
 }
