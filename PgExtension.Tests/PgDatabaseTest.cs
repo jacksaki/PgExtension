@@ -19,6 +19,7 @@ namespace PgExtension.Tests
             var conf = ConnectionConfig.Load(System.Environment.GetEnvironmentVariable("connection_config")!);
             await using var conn = new ConnectionContext(conf);
             await conn.ConnectAsync();
+            _testOutputHelper.WriteLine(conn.GetConnectionString());
             var db = new PgDatabase(conn.GetConnectionString());
             var options = new JsonSerializerOptions() { WriteIndented = true };
             await foreach (var schema in db.ListSchemaAsync())

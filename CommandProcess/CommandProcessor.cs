@@ -7,7 +7,6 @@ public class CommandProcessor
     public static async Task<CommandProcessResult> RunCommandAsync(string filePath, string args)
     {
         var stdOuts = new List<string>();
-        var stdErrors = new List<string>();
 
         var psi = new ProcessStartInfo
         {
@@ -33,7 +32,7 @@ public class CommandProcessor
         {
             await foreach (var item in stdError)
             {
-                stdErrors.Add(item);
+                stdOuts.Add(item);
                 errorBuffered.Add(item);
             }
         });
@@ -41,11 +40,11 @@ public class CommandProcessor
         try
         {
             await Task.WhenAll(consumeStdOut, consumeStdError);
-            return new CommandProcessResult(0, stdOuts, stdErrors);
+            return new CommandProcessResult(0, stdOuts, errorBuffered);
         }
         catch (ProcessErrorException ex)
         {
-            return new CommandProcessResult(ex.ExitCode, stdOuts, stdErrors);
+            return new CommandProcessResult(ex.ExitCode, stdOuts, errorBuffered);
         }
     }
 }

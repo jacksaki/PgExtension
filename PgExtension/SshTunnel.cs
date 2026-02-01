@@ -87,8 +87,7 @@ internal sealed class SshTunnel : IDisposable
 
     enum CreationFlags : uint
     {
-        CREATE_NO_WINDOW = 0x08000000,
-        CREATE_WINDOW = 0x00000000,
+        CREATE_NO_WINDOW = 0x08000000
     }
 
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
@@ -138,7 +137,7 @@ internal sealed class SshTunnel : IDisposable
             $"-N -L {ssh.LocalPort}:{conf.DbHost}:{conf.DbPort} " +
             $"-p {ssh.SshPort} " +
             $"{ssh.SshUserName}@{ssh.SshHostName} " +
-            "-o ExitOnForwardFailure=yes -vvv";
+            "-o ExitOnForwardFailure=yes";
 
         if (!string.IsNullOrEmpty(ssh.SshPrivateKey))
             args += $" -i \"{ssh.SshPrivateKey}\"";
@@ -154,8 +153,7 @@ internal sealed class SshTunnel : IDisposable
             IntPtr.Zero,
             IntPtr.Zero,
             false,
-            CreationFlags.CREATE_WINDOW,
-            //CreationFlags.CREATE_NO_WINDOW,
+            CreationFlags.CREATE_NO_WINDOW,
             IntPtr.Zero,
             null,
             ref si,

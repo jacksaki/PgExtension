@@ -1,15 +1,7 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
-
-namespace PgExtension;
+﻿namespace PgExtension;
 
 using Renci.SshNet;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
 
 public class ConnectionContext:IAsyncDisposable
 {

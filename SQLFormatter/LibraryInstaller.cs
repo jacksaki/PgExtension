@@ -1,14 +1,73 @@
-﻿using CommandProcess;
+﻿using Cysharp.Diagnostics;
+using ObservableCollections;
+using R3;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace SQLFormatter;
 
-public static class LibraryInstaller
+public class LibraryInstaller
 {
-    public static async Task<CommandProcessResult?> InstallAsync()
+    public ReactiveProperty<string> Title { get; }
+    public LibraryInstaller()
     {
+        this.Title = new ReactiveProperty<string>();
+    }
+
+    private async Task RunCommandAsync(string filePath, string args)
+    {
+        var stdOuts = new List<string>();
+
+        var psi = new ProcessStartInfo
+        {
+            FileName = filePath,
+            Arguments = args,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
+        };
+
+        var (_, stdOut, stdError) = ProcessX.GetDualAsyncEnumerable(psi);
+        var consumeStdOut = Task.Run(async () =>
+        {
+            await foreach (var item in stdOut)
+            {
+                Logged(this,new LoggItem(InstallLogItemType.Output,item));
+            }
+        });
+
+        var errorBuffered = new List<string>();
+        var consumeStdError = Task.Run(async () =>
+        {
+            await foreach (var item in stdError)
+            {
+                Logged(this, new LoggItem(InstallLogItemType.Error, item));
+                errorBuffered.Add(item);
+            }
+        });
+        try
+        {
+            await Task.WhenAll(consumeStdOut, consumeStdError);
+        }
+        catch (ProcessErrorException ex)
+        {
+            throw new Exception(ex.ExitCode.ToString());
+        }
+    }
+
+    public delegate void LoggedEventHandler(object sender, LoggItem e);
+    public event LoggedEventHandler Logged = delegate { };
+
+    public async Task InstallAsync()
+    {
+        this.Title.Value = "事前チェック";
         var stdOuts = new List<string>();
         var stdErrors = new List<string>();
         var confPath = System.IO.Path.ChangeExtension(System.Reflection.Assembly.GetExecutingAssembly().Location, ".conf");
@@ -20,54 +79,34 @@ public static class LibraryInstaller
         var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
         var conf = JsonSerializer.Deserialize<Config>(File.ReadAllText(confPath))!;
 
-        var pythonDir = Path.Combine(baseDir, conf.python_dir);
+        var pythonDir = Path.Combine(baseDir, conf.PythonDir);
         var pythonExe = Path.Combine(pythonDir, "python.exe");
-        var venvDir = Path.Combine(pythonDir, "venv");
-        var sqlfluffExe = Path.Combine(venvDir, "Scripts", "sqlfluff.exe");
+        var sqlfluffExe = Path.Combine(pythonDir, "Scripts", "sqlfluff.exe");
 
         if (File.Exists(sqlfluffExe))
         {
-            return null; // すでに全部揃ってる
+            this.Title.Value = "完了";
+            return;
         }
 
         Directory.CreateDirectory(pythonDir);
 
         if (!File.Exists(pythonExe))
         {
-            await InstallEmbeddedPythonAsync(conf.python_url, pythonDir);
+            this.Title.Value = "Embedded python インストール";
+            await InstallEmbeddedPythonAsync(conf.PythonUrl, pythonDir);
             EnableSite(pythonDir);
-            var result = await InstallPipAsync(pythonExe, pythonDir);
-            stdOuts.AddRange(result.StandardOutput);
-            stdErrors.AddRange(result.StandardError);
-            if (result.ExitCode != 0)
-            {
-                return result;
-            }
+            this.Title.Value = "get-pip";
+            await InstallPipAsync(pythonExe, pythonDir);
         }
 
-        if (!Directory.Exists(venvDir))
-        {
-            var result = await RunCommandAsync(pythonExe, $"-m venv \"{venvDir}\"");
-            stdOuts.AddRange(result.StandardOutput);
-            stdErrors.AddRange(result.StandardError);
-            if (result.ExitCode != 0)
-            {
-                return new CommandProcessResult(result.ExitCode, stdOuts, stdErrors);
-            }
-        }
 
-        var pipResult = await RunCommandAsync(Path.Combine(venvDir, "Scripts", "pip.exe"), "install --upgrade pip");
-        stdOuts.AddRange(pipResult.StandardOutput);
-        stdErrors.AddRange(pipResult.StandardError);
-        if (pipResult.ExitCode != 0)
-        {
-            return new CommandProcessResult(pipResult.ExitCode, stdOuts, stdErrors);
-        }
+        this.Title.Value = "pip インストール";
+        await RunCommandAsync(Path.Combine(pythonDir, "Scripts", "pip.exe"), "install --upgrade pip");
 
-        var sfResult = await RunCommandAsync(Path.Combine(venvDir, "Scripts", "pip.exe"), "install sqlfluff");
-        stdOuts.AddRange(sfResult.StandardOutput);
-        stdErrors.AddRange(sfResult.StandardError);
-        return new CommandProcessResult(sfResult.ExitCode, stdOuts, stdErrors);
+        this.Title.Value = "sqlfluff インストール";
+        await RunCommandAsync(Path.Combine(pythonDir, "Scripts", "pip.exe"), "install sqlfluff");
+        this.Title.Value = "完了";
     }
 
     private static async Task InstallEmbeddedPythonAsync(string url, string targetDir)
@@ -96,7 +135,7 @@ public static class LibraryInstaller
         }
     }
 
-    private static async Task<CommandProcessResult> InstallPipAsync(string pythonExe, string pythonDir)
+    private async Task InstallPipAsync(string pythonExe, string pythonDir)
     {
         var getPipPath = Path.Combine(pythonDir, "get-pip.py");
 
@@ -105,20 +144,6 @@ public static class LibraryInstaller
             getPipPath,
             await wc.GetByteArrayAsync("https://bootstrap.pypa.io/get-pip.py"));
 
-        var result = await RunCommandAsync(pythonExe, $"\"{getPipPath}\"");
-        File.Delete(getPipPath);
-        return result;
+        await RunCommandAsync(pythonExe, $"\"{getPipPath}\"");
     }
-
-
-    private static async Task<CommandProcessResult> RunCommandAsync(string exe, string args)
-    {
-        return await CommandProcessor.RunCommandAsync(exe, args);
-    }
-
-    private record Config(
-        string python_url,
-        string python_dir,
-        string sqlfluff_version
-    );
 }

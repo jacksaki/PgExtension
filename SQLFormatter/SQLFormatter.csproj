@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CommandProcess\CommandProcess.csproj" />
+	  <PackageReference Include="ObservableCollections.R3" Version="3.3.4" />
+	  <PackageReference Include="ProcessX" Version="1.5.6" />
   </ItemGroup>
 
   <ItemGroup>
