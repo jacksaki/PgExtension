@@ -106,6 +106,14 @@ public class LibraryInstaller
 
         this.Title.Value = "sqlfluff インストール";
         await RunCommandAsync(Path.Combine(pythonDir, "Scripts", "pip.exe"), "install sqlfluff");
+
+        //
+        var sqlFluffPath = System.IO.Path.Combine(
+            System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!,
+            ".sqlfluff");
+
+        System.IO.File.Copy(sqlFluffPath, Path.Combine(pythonDir, "Scripts", ".sqlfluff"));
+
         this.Title.Value = "完了";
     }
 
